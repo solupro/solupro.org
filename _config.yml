@@ -1,0 +1,79 @@
+title:            Solu's 记事簿
+description:      记录一些乱七八糟的东西だぜ！
+disqus_shortname: solupro
+#Your site's domain goes here. Leave localhost server or blank when working locally.
+url:              http://solupro.org
+
+# Owner/author information
+owner:
+  name:           Solu Scarlet
+  avatar:         avatar.png
+  bio:            "PHP程序猿，Python爱好者，C语言初心者
+      同时是一个伪宅男，二小姐本命什么的我会随便说吗!"
+  email:          sendsoluex@gmail.com
+  # Social networking links used in footer. Update and remove as you like.
+  twitter:        
+  facebook:       
+  github:         https://github.com/solupro
+  stackexchange:  
+  linkedin:       
+  instagram:      
+  flickr:         
+  tumblr:         
+  # For Google Authorship https://plus.google.com/authorship
+  google_plus:    https://plus.google.com/+solu_scarlet
+
+# Background image to be tiled on all pages
+background: 
+
+# Analytics and webmaster tools stuff goes here
+google_analytics: UA-41773558-1
+google_verify: solupro.org
+# https://ssl.bing.com/webmaster/configure/verify/ownership Option 2 content= goes here
+bing_verify:         
+
+# Links to include in top navigation
+# For external links add external: true
+links:
+  - title: Sanaeの空想庭园
+    url: http://blog.kochiya.me/
+    external: true
+    blank: true
+  - title: 思安阁
+    url: http://www.migroom.com/
+    external: true
+    blank: true
+
+# http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone:    Asia/Shanghai
+future:      true
+highlighter: pygments
+markdown:    kramdown
+
+# https://github.com/mojombo/jekyll/wiki/Permalinks
+permalink:   /:categories/:title/
+
+# Amount of post to show on home page
+paginate: 5
+
+kramdown:
+  auto_ids: true
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..6
+  enable_coderay: true
+
+  coderay:
+    coderay_line_numbers: nil
+    coderay_line_numbers_start: 1
+    coderay_tab_width: 2
+    coderay_bold_every: 10
+    coderay_css: class
+
+include: [".htaccess"]
+exclude: ["lib", "config.rb", "Capfile", "config", "log", "Rakefile", "Rakefile.rb", "tmp", "less", "*.sublime-project", "*.sublime-workspace", "test", "spec", "Gruntfile.js", "package.json", "node_modules"]
+
+ # PAGINATION
+plugins: [jekyll-paginate]
+paginate: 5
+paginate_path: "page:num"

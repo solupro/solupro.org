@@ -1,0 +1,84 @@
+<p>在鸟哥《<a href="http://www.laruence.com/2010/05/18/1482.html">深入理解PHP原理之对象(一)</a>》看到一段挺有意思的代码</p>
+
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+    <span class="k">private</span> <span class="nv">$_name</span> <span class="o">=</span> <span class="s2">&quot;laruence&quot;</span><span class="p">;</span>
+    <span class="k">protected</span> <span class="nv">$_age</span> <span class="o">=</span> <span class="mi">28</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nv">$foo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">();</span>
+<span class="nv">$arr</span> <span class="o">=</span> <span class="p">(</span><span class="k">array</span><span class="p">)</span> <span class="nv">$foo</span><span class="p">;</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">Foo</span><span class="se">\0</span><span class="s2">_name&quot;</span><span class="p">]);</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">*</span><span class="se">\0</span><span class="s2">_age&quot;</span><span class="p">]);</span>
+<span class="c1">//output:</span>
+<span class="nx">string</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="s2">&quot;laruence&quot;</span>
+<span class="nx">int</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span></code></pre></div>
+
+<p>至于这算不算BUG本文就不议论了，有兴趣的可以看看这里 (见:  <a href="https://bugs.php.net/bug.php?id=44273">Bug #44273 access to private and protected class variables allowed when casting to array</a> ):  下面有相关议论</p>
+
+<p>那为什么对象转成数组以后能通过构建特殊的key去访问呢？直接看关键代码吧! (已下代码PHP版本为:  5.4.27)</p>
+
+<div class="highlight"><pre><code class="c"><span class="cm">/* Zend/zend_API.c +3361*/</span>
+<span class="n">ZEND_API</span> <span class="kt">int</span> <span class="nf">zend_declare_property_ex</span><span class="p">(</span><span class="n">zend_class_entry</span> <span class="o">*</span><span class="n">ce</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="kt">int</span> <span class="n">name_length</span><span class="p">,</span> <span class="n">zval</span> <span class="o">*</span><span class="n">property</span><span class="p">,</span> <span class="kt">int</span> <span class="n">access_type</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">doc_comment</span><span class="p">,</span> <span class="kt">int</span> <span class="n">doc_comment_len</span> <span class="n">TSRMLS_DC</span><span class="p">)</span> <span class="cm">/* \{\{\{ */</span>
+<span class="p">{</span>
+<span class="p">.....</span>
+	<span class="k">switch</span> <span class="p">(</span><span class="n">access_type</span> <span class="o">&amp;</span> <span class="n">ZEND_ACC_PPP_MASK</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">case</span> <span class="n">ZEND_ACC_PRIVATE</span>: <span class="p">{</span>
+				<span class="kt">char</span> <span class="o">*</span><span class="n">priv_name</span><span class="p">;</span>
+				<span class="kt">int</span> <span class="n">priv_name_length</span><span class="p">;</span>
+
+				<span class="n">zend_mangle_property_name</span><span class="p">(</span><span class="o">&amp;</span><span class="n">priv_name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">priv_name_length</span><span class="p">,</span> <span class="n">ce</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">,</span> <span class="n">ce</span><span class="o">-&gt;</span><span class="n">name_length</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">name_length</span><span class="p">,</span> <span class="n">ce</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">&amp;</span> <span class="n">ZEND_INTERNAL_CLASS</span><span class="p">);</span>
+				<span class="n">property_info</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">priv_name</span><span class="p">;</span>
+				<span class="n">property_info</span><span class="p">.</span><span class="n">name_length</span> <span class="o">=</span> <span class="n">priv_name_length</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="k">case</span> <span class="n">ZEND_ACC_PROTECTED</span>: <span class="p">{</span>
+				<span class="kt">char</span> <span class="o">*</span><span class="n">prot_name</span><span class="p">;</span>
+				<span class="kt">int</span> <span class="n">prot_name_length</span><span class="p">;</span>
+
+				<span class="n">zend_mangle_property_name</span><span class="p">(</span><span class="o">&amp;</span><span class="n">prot_name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">prot_name_length</span><span class="p">,</span> <span class="s">&quot;*&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">name_length</span><span class="p">,</span> <span class="n">ce</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">&amp;</span> <span class="n">ZEND_INTERNAL_CLASS</span><span class="p">);</span>
+				<span class="n">property_info</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">prot_name</span><span class="p">;</span>
+				<span class="n">property_info</span><span class="p">.</span><span class="n">name_length</span> <span class="o">=</span> <span class="n">prot_name_length</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="k">case</span> <span class="n">ZEND_ACC_PUBLIC</span>:
+			<span class="k">if</span> <span class="p">(</span><span class="n">IS_INTERNED</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="p">{</span>
+				<span class="n">property_info</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">name</span><span class="p">;</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="n">property_info</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">ce</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">&amp;</span> <span class="n">ZEND_INTERNAL_CLASS</span> <span class="o">?</span> <span class="n">zend_strndup</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name_length</span><span class="p">)</span> <span class="o">:</span> <span class="n">estrndup</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name_length</span><span class="p">);</span>
+			<span class="p">}</span>
+			<span class="n">property_info</span><span class="p">.</span><span class="n">name_length</span> <span class="o">=</span> <span class="n">name_length</span><span class="p">;</span>
+			<span class="k">break</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">.....</span>
+	<span class="n">zend_hash_quick_update</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ce</span><span class="o">-&gt;</span><span class="n">properties_info</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">name_length</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">property_info</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">zend_property_info</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">);</span>
+
+	<span class="k">return</span> <span class="n">SUCCESS</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+<p>可以看到当属性是private和protected时候调用<code>zend_mangle_property_name</code>来构造<code>property_info.name</code> (转换后的key)，而它们第3，4个参数也不一样，private传入的是类名，而protected传入的是<code>*</code>字符。在看看<code>zend_mangle_property_name</code>函数的实现就一目了然了。</p>
+
+<div class="highlight"><pre><code class="c"><span class="cm">/* Zend/zend_compile.c +5037 */</span>
+<span class="n">ZEND_API</span> <span class="kt">void</span> <span class="nf">zend_mangle_property_name</span><span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="n">dest</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">dest_length</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">src1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">src1_length</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">src2</span><span class="p">,</span> <span class="kt">int</span> <span class="n">src2_length</span><span class="p">,</span> <span class="kt">int</span> <span class="n">internal</span><span class="p">)</span> <span class="cm">/* \{\{\{ */</span>
+<span class="p">{</span>
+	<span class="kt">char</span> <span class="o">*</span><span class="n">prop_name</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">prop_name_length</span><span class="p">;</span>
+
+	<span class="n">prop_name_length</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">src1_length</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">src2_length</span><span class="p">;</span>
+	<span class="n">prop_name</span> <span class="o">=</span> <span class="n">pemalloc</span><span class="p">(</span><span class="n">prop_name_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">internal</span><span class="p">);</span>
+	<span class="n">prop_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+	<span class="n">memcpy</span><span class="p">(</span><span class="n">prop_name</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">src1</span><span class="p">,</span> <span class="n">src1_length</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+	<span class="n">memcpy</span><span class="p">(</span><span class="n">prop_name</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">src1_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">src2</span><span class="p">,</span> <span class="n">src2_length</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+
+	<span class="o">*</span><span class="n">dest</span> <span class="o">=</span> <span class="n">prop_name</span><span class="p">;</span>
+	<span class="o">*</span><span class="n">dest_length</span> <span class="o">=</span> <span class="n">prop_name_length</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/* \}\}\} */</span></code></pre></div>
+
+<p>所以对象的private属性我们可以强制转换为array后通过<code>$obj["\0类名\0属性名"]</code>来访问，而protected则是<code>$obj["\0*\0属性名"]</code></p>
+
+<p>至于流程可以通过<code>zend_do_declare_property</code>关键字到 <a href="http://lxr.php.net/">http://lxr.php.net/</a> 搜索, 大概就是<br />
+- zend_do_declare_property
+- zend_declare_property_ex
+- zend_mangle_property_name</p>
+
+<p>嗯，好像也没写什么的样子，一些细节比如property_info被zend_hash_quick_update, 类型的转换都没理解清楚。</p>
