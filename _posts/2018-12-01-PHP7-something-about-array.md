@@ -13,7 +13,7 @@ PHP的数组是一个 `有序字典` ，特性是有序、可通过键查找。
 
 下图是初始化的空packed array结构（packed array 和 hash array以后有机会在写吧）
 
-![packed array](http://ww1.sinaimg.cn/large/65fcc0d7gy1fyjydj7k58j20go0axmy1.jpg)
+![packed array](//ww1.sinaimg.cn/large/65fcc0d7gy1fyjydj7k58j20go0axmy1.jpg)
 	￼￼
 
 这里有三个概念HashTable, solt, bucket。HashTable数组本体，slot存储索引，bucket实际数据的存储结构。图中的 *arData 指向的是一段连续的内存，起点位置是bucket的开始地址，往前（负索引）是slot的地址，这块内存同时存放了solt和bucket结构。
