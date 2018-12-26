@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>http://localhost:4000</loc>
+        <loc>https://solupro.org</loc>
     </url>
     
     
     <url>
-        <loc>http://localhost:4000/404/</loc>
+        <loc>https://solupro.org/404/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/about/</loc>
+        <loc>https://solupro.org/about/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/feed.xml</loc>
+        <loc>https://solupro.org/feed.xml</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/</loc>
+        <loc>https://solupro.org/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/posts/</loc>
+        <loc>https://solupro.org/posts/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/sitemap.xml</loc>
+        <loc>https://solupro.org/sitemap.xml</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/tags/</loc>
+        <loc>https://solupro.org/tags/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/page2/</loc>
+        <loc>https://solupro.org/page2/</loc>
     </url>
     
 
     
     <url>
-        <loc>http://localhost:4000/PHP7-something-about-array/</loc>
+        <loc>https://solupro.org/PHP7-something-about-array/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/PHP__compare_maigc_method/</loc>
+        <loc>https://solupro.org/PHP__compare_maigc_method/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/php-two-array-function/</loc>
+        <loc>https://solupro.org/php-two-array-function/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/php-access-private/</loc>
+        <loc>https://solupro.org/php-access-private/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/something/</loc>
+        <loc>https://solupro.org/something/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/php-__compare/</loc>
+        <loc>https://solupro.org/php-__compare/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/php-opd-another-vld/</loc>
+        <loc>https://solupro.org/php-opd-another-vld/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/php-disable-function/</loc>
+        <loc>https://solupro.org/php-disable-function/</loc>
     </url>
     
     <url>
-        <loc>http://localhost:4000/python-get-imei-info/</loc>
+        <loc>https://solupro.org/python-get-imei-info/</loc>
     </url>
     
 </urlset>
