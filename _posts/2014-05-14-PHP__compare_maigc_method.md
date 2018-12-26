@@ -7,7 +7,7 @@ tags: [C, PHP, code]
 comments: true
 share: true
 ---
-之前吐槽过PHP为什么没`__compare`魔术方法《[PHP __compare?](http://solupro.org/php-__compare/)》，可能开发组觉得没有必要吧，毕竟对象默认的比较一般情况已经够用了。 于是乎怀着no zuo no die心情尝试去实现一下，发现难度比预想要小。但由于拖延症的原因这篇文拖到现在才写，还有一方面就是修改的地方比较多和杂乱。
+之前吐槽过PHP为什么没`__compare`魔术方法《[PHP __compare?](//solupro.org/php-__compare/)》，可能开发组觉得没有必要吧，毕竟对象默认的比较一般情况已经够用了。 于是乎怀着no zuo no die心情尝试去实现一下，发现难度比预想要小。但由于拖延症的原因这篇文拖到现在才写，还有一方面就是修改的地方比较多和杂乱。
 
 先看看效果吧！
 
