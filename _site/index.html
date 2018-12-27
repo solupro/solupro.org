@@ -142,6 +142,74 @@
   
 <article class="hentry">
   <header>
+    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2019-12-09T00:00:00+08:00"><a href="https://solupro.org/PHP7-packet-array/">December 09, 2019</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP7-packet-array/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="https://solupro.org/PHP7-packet-array/" rel="bookmark" title="PHP7中的packed array" itemprop="url">PHP7中的packed array</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    
+      <p>上次提到PHP7的数组分为packed array 和 hash array，区别在于packed array取值不需要通过slot获得arData的下标，它的key对应的就是下标，所以取值速度上更有优势和比较省内存。</p>
+
+<p>packed array要满足的条件是key必须是递增的正整型。</p>
+
+<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">];</span> <span class="c1">// 是</span>
+<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">];</span> <span class="c1">// 是(跨下标的有例外)</span>
+<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">];</span> <span class="c1">// 不是</span>
+<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">];</span> <span class="c1">// 不是</span></code></pre></figure>
+
+<p><b>转换为packed array的操作</b> <br />
+shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为packed array。</p>
+
+<p><b>转换为hash array的操作</b></p>
+<ol>
+  <li>往packed array添加string key的操作</li>
+  <li>添加的key是整型但是之前这个key被unset过（Z_TYPE == IS_UNDEF 状态）</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>添加的key 大于nTableSize（数组容量）并且 (key » 1) &gt; nTableSize</td>
+          <td> </td>
+          <td>(nTableSize » 1) &gt; nNumOfElements 这里😂太拗口我就直接贴代码好了</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+
+<p>关于②PHP数组unset操作并不会立马删除指定的bucket，而且把它标识为<code>IS_UNDEF</code>的状态，等待rehash或者扩容的时候再处理（这是后话，有机会再填坑吧）。<br />
+比如有一个packed array</p>
+
+<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">];</span>
+<span class="nb">unset</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<span class="nv">$arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span> 
+<span class="c1">// output</span>
+<span class="nv">$arr</span> <span class="o">==</span> <span class="p">[</span><span class="mi">0</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="mi">4</span><span class="p">]</span></code></pre></figure>
+
+<p>这时候就已经转化成了hash array</p>
+
+<p>关于③先要各个字段之间的关系是，数组容量(nTableSize，初始化数组容量是8) = 已使用(nNumUsed) + 未使用， 已使用(nNumUsed) = 有效(nNumOfElements，我们count数组得到的就是这个大小) + 无效(unset的) 。结合上面的描述得到 $arr = [0 =&gt; 1, 8 =&gt; 2]; 是一个hash array。</p>
+
+<p><img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fyl54zmlvhj20ze0cqq5p.jpg" alt="" /></p>
+
+<p>打印出这时候的HashTable可以看到，u.flag = 26 &amp; HASH_FLAG_PACKED(4) == 0 已经不是packed array了，虽然我们第二个元素下标是8超过了容量nTableSize，但是这时候并没有扩容，而是转为hash array使得内存使用边得更紧凑。</p>
+
+<p>参考：</p>
+<ul>
+  <li>《PHP 7底层设计与源码实现》</li>
+  <li>PHP7.2-SRC</li>
+  <li>nikic 博客</li>
+</ul>
+
+    
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
     <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2018-12-01T00:00:00+08:00"><a href="https://solupro.org/PHP7-something-about-array/">December 01, 2018</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP7-something-about-array/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
     
       <h1 class="entry-title"><a href="https://solupro.org/PHP7-something-about-array/" rel="bookmark" title="PHP7中数组的一些改进" itemprop="url">PHP7中数组的一些改进</a></h1>
@@ -298,34 +366,6 @@ array array_insert ( array $input , int $index , mixed $value )</p>
 
 <p>
       <p class=\"more\"><a href="/php-access-private/">Read more...</a></p>
-    
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-09T00:00:00+08:00"><a href="https://solupro.org/something/">May 09, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/something/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="https://solupro.org/something/" rel="bookmark" title="暂时就这样吧!" itemprop="url">暂时就这样吧!</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    
-      <p>在这里搭建起博客源于和 @<a href="http://www.kochiya.me">AproSane</a>的一次交谈。
-之前他的博客是挂在GAE的，但是由于抠门的配额不得不迁移，找到了这个VPS。
-很小巧，并且支持Go，Python什么的，最主要便宜到烂，于是我也买了。
-然后想了想做Web开发也一段时间了没有一个域名不像话，接着就买了四年了这域名，
-所以就有了这博客。</p>
-
-<p>当然这VPS并不是单单有用搭建博客，还有用来运行一些“实验性”的东西。还是说回
-博客吧。最近在看Go Web的内容并且和@<a href="http://www.kochiya.me">AproSane</a>担心
-的一样，怕VPS哪天跪了，所以还是做静态博客吧，选用了<a href="https://github.com/wendal/gor">Gor</a>生成。我的发布流程是这样的，本地编辑编译，然后提交到github，接着VPS那边更新就好。</p>
-
-<p>说到博客数一数都好几个，百度的，OSC的，SAE的(贴在about me)，其实没心思写，说忙是一回事，但最主要还是自己懒吧。想导出迁移到这里，但是一直不顺利，估计就这样算了。</p>
-
-<hr />
-<p>2014-05-09 把博客的生成器换成了<code>jekyll</code>,因为一直有听说这东西，所以现在试一下,虽然一点都不懂ruby，但最近在看《代码的未来》</p>
-
     
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->

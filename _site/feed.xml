@@ -4,13 +4,83 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="https://solupro.org/feed.xml" />
 <link rel="alternate" type="text/html" href="https://solupro.org" />
-<updated>2018-12-26T10:58:49+08:00</updated>
+<updated>2018-12-27T11:31:29+08:00</updated>
 <id>https://solupro.org/</id>
 <author>
   <name>Solu Scarlet</name>
   <uri>https://solupro.org/</uri>
   <email>sendsoluex@gmail.com</email>
 </author>
+
+
+<entry>
+  <title type="html"><![CDATA[PHP7中的packed array]]></title>
+ <link rel="alternate" type="text/html" href="https://solupro.org/PHP7-packet-array/" />
+  <id>https://solupro.org/PHP7-packet-array</id>
+  <published>2019-12-09T00:00:00+08:00</published>
+  <updated>2019-12-09T00:00:00+08:00</updated>
+  <author>
+    <name>Solu Scarlet</name>
+    <uri>https://solupro.org</uri>
+    <email>sendsoluex@gmail.com</email>
+  </author>
+  <content type="html">&lt;p&gt;上次提到PHP7的数组分为packed array 和 hash array，区别在于packed array取值不需要通过slot获得arData的下标，它的key对应的就是下标，所以取值速度上更有优势和比较省内存。&lt;/p&gt;
+
+&lt;p&gt;packed array要满足的条件是key必须是递增的正整型。&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-php&quot; data-lang=&quot;php&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$arr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 是&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$arr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 是(跨下标的有例外)&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$arr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 不是&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$arr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 不是&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;b&gt;转换为packed array的操作&lt;/b&gt; &lt;br /&gt;
+shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为packed array。&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;转换为hash array的操作&lt;/b&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;往packed array添加string key的操作&lt;/li&gt;
+  &lt;li&gt;添加的key是整型但是之前这个key被unset过（Z_TYPE == IS_UNDEF 状态）&lt;/li&gt;
+  &lt;li&gt;
+    &lt;table&gt;
+      &lt;tbody&gt;
+        &lt;tr&gt;
+          &lt;td&gt;添加的key 大于nTableSize（数组容量）并且 (key » 1) &amp;gt; nTableSize&lt;/td&gt;
+          &lt;td&gt; &lt;/td&gt;
+          &lt;td&gt;(nTableSize » 1) &amp;gt; nNumOfElements 这里😂太拗口我就直接贴代码好了&lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;关于②PHP数组unset操作并不会立马删除指定的bucket，而且把它标识为&lt;code&gt;IS_UNDEF&lt;/code&gt;的状态，等待rehash或者扩容的时候再处理（这是后话，有机会再填坑吧）。&lt;br /&gt;
+比如有一个packed array&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-php&quot; data-lang=&quot;php&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$arr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;unset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$arr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$arr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; 
+&lt;span class=&quot;c1&quot;&gt;// output&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$arr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;这时候就已经转化成了hash array&lt;/p&gt;
+
+&lt;p&gt;关于③先要各个字段之间的关系是，数组容量(nTableSize，初始化数组容量是8) = 已使用(nNumUsed) + 未使用， 已使用(nNumUsed) = 有效(nNumOfElements，我们count数组得到的就是这个大小) + 无效(unset的) 。结合上面的描述得到 $arr = [0 =&amp;gt; 1, 8 =&amp;gt; 2]; 是一个hash array。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fyl54zmlvhj20ze0cqq5p.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;打印出这时候的HashTable可以看到，u.flag = 26 &amp;amp; HASH_FLAG_PACKED(4) == 0 已经不是packed array了，虽然我们第二个元素下标是8超过了容量nTableSize，但是这时候并没有扩容，而是转为hash array使得内存使用边得更紧凑。&lt;/p&gt;
+
+&lt;p&gt;参考：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;《PHP 7底层设计与源码实现》&lt;/li&gt;
+  &lt;li&gt;PHP7.2-SRC&lt;/li&gt;
+  &lt;li&gt;nikic 博客&lt;/li&gt;
+&lt;/ul&gt;
+
+  &lt;p&gt;&lt;a href=&quot;https://solupro.org/PHP7-packet-array/&quot;&gt;PHP7中的packed array&lt;/a&gt; was originally published by Solu Scarlet at &lt;a href=&quot;https://solupro.org&quot;&gt;Solu's 记事簿&lt;/a&gt; on December 09, 2019.&lt;/p&gt;</content>
+</entry>
 
 
 <entry>
