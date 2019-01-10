@@ -142,7 +142,42 @@
   
 <article class="hentry">
   <header>
-    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2019-12-09T00:00:00+08:00"><a href="https://solupro.org/PHP7-packet-array/">December 09, 2019</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP7-packet-array/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
+    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2018-12-24T00:00:00+08:00"><a href="https://solupro.org/PHP7-array-resize-and-rehash/">December 24, 2018</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP7-array-resize-and-rehash/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="https://solupro.org/PHP7-array-resize-and-rehash/" rel="bookmark" title="PHP7数组扩容和rehash" itemprop="url">PHP7数组扩容和rehash</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    
+      <p><b>TL;DR</b><br />
+<b>数组初始化容量为8，最大是0x80000000，每次扩容为原容量的2倍。</b></p>
+
+<p><img src="http://ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg" alt="" /></p>
+
+<p><b>扩容</b><br />
+数组插入新元素的时候会调用<code>ZEND_HASH_IF_FULL_DO_RESIZE</code>判断已使用容量是否大于等于数组容量（ht-&gt;nNumUsed &gt;= ht-&gt;nTableSize）;<br />
+条件成立再判断已使用是否大于有效元素加上有效元素除以32（ht-&gt;nNumUsed &gt; ht-&gt;nNumOfElements + (ht-&gt;nNumOfElements » 5)），符合这条件的先进行<code>rehash</code>整理，不符合条件的判断数组容量是否小于HT_MAX_SIZE（0x80000000）;<br />
+如果是则容量扩大至原来的2倍，uint32_t nSize = ht-&gt;nTableSize + ht-&gt;nTableSize; 在内存池申请 nSize* sizeof(Bucket) + nSize* sizeof(uint32_t)大小的新数据地址;<br />
+设置新的nTableSize和nTableMask，修改ht-&gt;arData指向新地址，把旧Bucket数据拷贝到新地址，释放旧地址内存，执行<code>zend_hash_rehash</code>。</p>
+
+<p><b>rehash</b><br />
+首先调用HT_HASH_RESET重置所有索引为-1；<br />
+如果数组所有元素都是有效元素则按arData数组顺序重新分配索引，原索引存在元素值zval.u2.next；<br />
+否则循环遍历bucket至nNumUsed，去除IS_UNDEF的元素，更新nNumUsed。</p>
+
+<p><b>参考</b></p>
+<ul>
+  <li>《PHP 7底层设计与源码实现》</li>
+  <li>PHP7.2-SRC</li>
+</ul>
+
+    
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2018-12-09T00:00:00+08:00"><a href="https://solupro.org/PHP7-packet-array/">December 09, 2018</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP7-packet-array/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
     
       <h1 class="entry-title"><a href="https://solupro.org/PHP7-packet-array/" rel="bookmark" title="PHP7中的packed array" itemprop="url">PHP7中的packed array</a></h1>
     
@@ -334,42 +369,6 @@ array array_insert ( array $input , int $index , mixed $value )</p>
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
 
-<article class="hentry">
-  <header>
-    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-10T00:00:00+08:00"><a href="https://solupro.org/php-access-private/">May 10, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-access-private/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="https://solupro.org/php-access-private/" rel="bookmark" title="PHP 一种访问私有属性的方法" itemprop="url">PHP 一种访问私有属性的方法</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    
-      <p>在鸟哥《<a href="http://www.laruence.com/2010/05/18/1482.html">深入理解PHP原理之对象(一)</a>》看到一段挺有意思的代码</p>
-
-<blockquote>
-  <p>“PHP通过这种比较ugly但是简单高效的方法, 实现了对属性访问权限的标识.知道了, 我们就可以干一些不合常理的事请, 比如访问对象的私有/保护属性”</p>
-</blockquote>
-
-<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
-<span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
-    <span class="k">private</span> <span class="nv">$_name</span> <span class="o">=</span> <span class="s2">&quot;laruence&quot;</span><span class="p">;</span>
-    <span class="k">protected</span> <span class="nv">$_age</span> <span class="o">=</span> <span class="mi">28</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nv">$foo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">();</span>
-<span class="nv">$arr</span> <span class="o">=</span> <span class="p">(</span><span class="k">array</span><span class="p">)</span> <span class="nv">$foo</span><span class="p">;</span>
-<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">Foo</span><span class="se">\0</span><span class="s2">_name&quot;</span><span class="p">]);</span>
-<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">*</span><span class="se">\0</span><span class="s2">_age&quot;</span><span class="p">]);</span>
-<span class="c1">//output:</span>
-<span class="nx">string</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="s2">&quot;laruence&quot;</span>
-<span class="nx">int</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span></code></pre></figure>
-
-<p>至于这算不算BUG本文就不议论了，有兴趣的可以看看这里 (见:  <a href="https://bugs.php.net/bug.php?id=44273">Bug #44273 access to private and protected class variables allowed when casting to array</a> ):  下面有相关议论</p>
-
-<p>
-      <p class=\"more\"><a href="/php-access-private/">Read more...</a></p>
-    
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
 
 <div class="pagination">
   
@@ -388,6 +387,12 @@ array array_insert ( array $input , int $index , mixed $value )</p>
         
       </li>
     
+      <li>
+        
+          <a href="https://solupro.org/page3">3</a>
+        
+      </li>
+    
   </ul>
   
     <a href="https://solupro.org/page2" class="btn">Next</a>
@@ -397,7 +402,7 @@ array array_insert ( array $input , int $index , mixed $value )</p>
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2018 Solu Scarlet. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/">HPSTR Theme</a>.</span>
+    <span>&copy; 2019 Solu Scarlet. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/">HPSTR Theme</a>.</span>
 
   </footer>
 </div><!-- /.footer-wrapper -->

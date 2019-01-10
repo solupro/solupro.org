@@ -142,6 +142,42 @@
   
 <article class="hentry">
   <header>
+    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-10T00:00:00+08:00"><a href="https://solupro.org/php-access-private/">May 10, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-access-private/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="https://solupro.org/php-access-private/" rel="bookmark" title="PHP 一种访问私有属性的方法" itemprop="url">PHP 一种访问私有属性的方法</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    
+      <p>在鸟哥《<a href="http://www.laruence.com/2010/05/18/1482.html">深入理解PHP原理之对象(一)</a>》看到一段挺有意思的代码</p>
+
+<blockquote>
+  <p>“PHP通过这种比较ugly但是简单高效的方法, 实现了对属性访问权限的标识.知道了, 我们就可以干一些不合常理的事请, 比如访问对象的私有/保护属性”</p>
+</blockquote>
+
+<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+    <span class="k">private</span> <span class="nv">$_name</span> <span class="o">=</span> <span class="s2">&quot;laruence&quot;</span><span class="p">;</span>
+    <span class="k">protected</span> <span class="nv">$_age</span> <span class="o">=</span> <span class="mi">28</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nv">$foo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">();</span>
+<span class="nv">$arr</span> <span class="o">=</span> <span class="p">(</span><span class="k">array</span><span class="p">)</span> <span class="nv">$foo</span><span class="p">;</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">Foo</span><span class="se">\0</span><span class="s2">_name&quot;</span><span class="p">]);</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">*</span><span class="se">\0</span><span class="s2">_age&quot;</span><span class="p">]);</span>
+<span class="c1">//output:</span>
+<span class="nx">string</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="s2">&quot;laruence&quot;</span>
+<span class="nx">int</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span></code></pre></figure>
+
+<p>至于这算不算BUG本文就不议论了，有兴趣的可以看看这里 (见:  <a href="https://bugs.php.net/bug.php?id=44273">Bug #44273 access to private and protected class variables allowed when casting to array</a> ):  下面有相关议论</p>
+
+<p>
+      <p class=\"more\"><a href="/php-access-private/">Read more...</a></p>
+    
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
     <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-09T00:00:00+08:00"><a href="https://solupro.org/something/">May 09, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/something/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
     
       <h1 class="entry-title"><a href="https://solupro.org/something/" rel="bookmark" title="暂时就这样吧!" itemprop="url">暂时就这样吧!</a></h1>
@@ -271,27 +307,6 @@ pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setprior
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
 
-<article class="hentry">
-  <header>
-    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2012-01-30T00:00:00+08:00"><a href="https://solupro.org/python-get-imei-info/">January 30, 2012</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/python-get-imei-info/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="https://solupro.org/python-get-imei-info/" rel="bookmark" title="SL4A - 获取IMEI信息" itemprop="url">SL4A - 获取IMEI信息</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    
-      <p>前段时间 <a href="http://weibo.com/hysia">@红黄满</a> 同学用python写了个获取手机IMEI信息的<a href="http://pastebin.com/J6QK01HN">小脚本</a>，今天小小的改动了一下，让它在Android上跑起来</p>
-
-<s>效果图因为放在SAE的博客，然后博客年代久矣被我删了，现在手头上也没Android设备，然后就没然后了，请看官老爷们自行脑补</s>
-
-<p>SL4A环境搭配(<a href="https://code.google.com/p/android-scripting/">https://code.google.com/p/android-scripting/</a>)</p>
-
-
-      <p class=\"more\"><a href="/python-get-imei-info/">Read more...</a></p>
-    
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
 
 <div class="pagination">
   
@@ -312,16 +327,22 @@ pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setprior
         
       </li>
     
+      <li>
+        
+          <a href="https://solupro.org/page3">3</a>
+        
+      </li>
+    
   </ul>
   
-    Next
+    <a href="https://solupro.org/page3" class="btn">Next</a>
   
 </div><!-- /.pagination -->
 </div><!-- /#main -->
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2018 Solu Scarlet. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/">HPSTR Theme</a>.</span>
+    <span>&copy; 2019 Solu Scarlet. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/">HPSTR Theme</a>.</span>
 
   </footer>
 </div><!-- /.footer-wrapper -->

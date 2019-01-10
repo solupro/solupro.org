@@ -5,25 +5,25 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>SL4A - 获取IMEI信息 &#8211; Solu's 记事簿</title>
-<meta name="description" content="用python写了个获取手机IMEI信息的小脚本">
-<meta name="keywords" content="Python, code">
+<title>PHP7数组扩容和rehash &#8211; Solu's 记事簿</title>
+<meta name="description" content="PHP7数组扩容和rehash">
+<meta name="keywords" content="C, PHP, code">
 
 
 
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SL4A - 获取IMEI信息">
-<meta property="og:description" content="用python写了个获取手机IMEI信息的小脚本">
-<meta property="og:url" content="https://solupro.org/python-get-imei-info/">
+<meta property="og:title" content="PHP7数组扩容和rehash">
+<meta property="og:description" content="PHP7数组扩容和rehash">
+<meta property="og:url" content="https://solupro.org/PHP7-array-resize-and-rehash/">
 <meta property="og:site_name" content="Solu's 记事簿">
 
 <meta name="google-site-verification" content="solupro.org">
 
 
 
-<link rel="canonical" href="https://solupro.org/python-get-imei-info/">
+<link rel="canonical" href="https://solupro.org/PHP7-array-resize-and-rehash/">
 <link href="https://solupro.org/feed.xml" type="application/atom+xml" rel="alternate" title="Solu's 记事簿 Feed">
 <link rel="author" href="https://plus.google.com/+solu_scarlet?rel=author">
 
@@ -130,108 +130,44 @@
     <header class="header-title">
       <div class="header-title-wrap">
         
-          <h1 class="entry-title"><a href="https://solupro.org/python-get-imei-info/" rel="bookmark" title="SL4A - 获取IMEI信息">SL4A - 获取IMEI信息</a></h1>
+          <h1 class="entry-title"><a href="https://solupro.org/PHP7-array-resize-and-rehash/" rel="bookmark" title="PHP7数组扩容和rehash">PHP7数组扩容和rehash</a></h1>
         
-        <h2>January 30, 2012</h2>
+        <h2>December 24, 2018</h2>
       </div><!-- /.header-title-wrap -->
     </header>
     <div class="entry-content">
-      <p>前段时间 <a href="http://weibo.com/hysia">@红黄满</a> 同学用python写了个获取手机IMEI信息的<a href="http://pastebin.com/J6QK01HN">小脚本</a>，今天小小的改动了一下，让它在Android上跑起来</p>
+      <p><b>TL;DR</b><br />
+<b>数组初始化容量为8，最大是0x80000000，每次扩容为原容量的2倍。</b></p>
 
-<s>效果图因为放在SAE的博客，然后博客年代久矣被我删了，现在手头上也没Android设备，然后就没然后了，请看官老爷们自行脑补</s>
+<p><img src="http://ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg" alt="" /></p>
 
-<p>SL4A环境搭配(<a href="https://code.google.com/p/android-scripting/">https://code.google.com/p/android-scripting/</a>)</p>
+<p><b>扩容</b><br />
+数组插入新元素的时候会调用<code>ZEND_HASH_IF_FULL_DO_RESIZE</code>判断已使用容量是否大于等于数组容量（ht-&gt;nNumUsed &gt;= ht-&gt;nTableSize）;<br />
+条件成立再判断已使用是否大于有效元素加上有效元素除以32（ht-&gt;nNumUsed &gt; ht-&gt;nNumOfElements + (ht-&gt;nNumOfElements » 5)），符合这条件的先进行<code>rehash</code>整理，不符合条件的判断数组容量是否小于HT_MAX_SIZE（0x80000000）;<br />
+如果是则容量扩大至原来的2倍，uint32_t nSize = ht-&gt;nTableSize + ht-&gt;nTableSize; 在内存池申请 nSize* sizeof(Bucket) + nSize* sizeof(uint32_t)大小的新数据地址;<br />
+设置新的nTableSize和nTableMask，修改ht-&gt;arData指向新地址，把旧Bucket数据拷贝到新地址，释放旧地址内存，执行<code>zend_hash_rehash</code>。</p>
 
-<!-- more -->
+<p><b>rehash</b><br />
+首先调用HT_HASH_RESET重置所有索引为-1；<br />
+如果数组所有元素都是有效元素则按arData数组顺序重新分配索引，原索引存在元素值zval.u2.next；<br />
+否则循环遍历bucket至nNumUsed，去除IS_UNDEF的元素，更新nNumUsed。</p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="ch">#!/usr/bin/python</span>
-<span class="c1"># encoding:utf8</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">IMEI 号码分析工具</span>
-<span class="sd">update by hysia </span>
-
-<span class="sd">http://blog.hysia.com</span>
-
-<span class="sd">http://weibo.com/hysia</span>
-
-<span class="sd">2011/11/20</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">urllib</span>
-<span class="kn">import</span> <span class="nn">urllib2</span>
-<span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">android</span>
-
-<span class="n">IMEI_INFO</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;Type Allocation Holder&#39;</span> <span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;Type Allocation Holder&lt;/td&gt;[\s\S]*?&lt;td class=&quot;basic-text&quot;&gt;(.*?)&lt;/td&gt;&#39;&#39;&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Mobile Equipment Type&#39;</span> <span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;Mobile Equipment Type&lt;/td&gt;[\s\S]*?&lt;td class=&quot;basic-text&quot;&gt;(.*?)&lt;/td&gt;&#39;&#39;&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;GSM Implementation Phase&#39;</span> <span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;GSM Implementation Phase&lt;/td&gt;[\s\S]*?&lt;td class=&quot;basic-text&quot;&gt;(.*?)&lt;/td&gt;&#39;&#39;&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Primary Market&#39;</span> <span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;Primary Market&lt;/td&gt;[\s\S]*?&lt;td class=&quot;basic-text&quot;&gt;(.*?)&lt;/td&gt;&#39;&#39;&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Legal Basis for Allocation&#39;</span> <span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;Legal Basis for Allocation&lt;/td&gt;[\s\S]*?&lt;td class=&quot;basic-text&quot;&gt;(.*?)&lt;/td&gt;&#39;&#39;&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Full IMEI Presentation&#39;</span> <span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;&#39;&#39;Full IMEI Presentation&lt;/td&gt;[\s\S]*?&lt;td class=&quot;basic-text&quot;&gt;(.*?)&lt;/td&gt;&#39;&#39;&#39;</span>
-<span class="p">}</span>
-
-<span class="k">def</span> <span class="nf">getUrlData</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">postData</span><span class="p">):</span>
-	<span class="n">retVal</span> <span class="o">=</span> <span class="bp">None</span>
-	<span class="n">req</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">postData</span><span class="p">)</span>
-	<span class="n">f</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
-	<span class="k">try</span><span class="p">:</span>
-		<span class="n">retVal</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-	<span class="k">except</span><span class="p">:</span>
-		<span class="k">print</span> <span class="s2">&quot;Get Url Data Error!&quot;</span>
-	<span class="k">finally</span><span class="p">:</span>
-		<span class="n">f</span><span class="o">.</span><span class="n">close</span>
-
-	<span class="k">return</span> <span class="n">retVal</span>
-
-<span class="k">def</span> <span class="nf">analysisIMEI</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-	<span class="n">retVal</span> <span class="o">=</span> <span class="p">{}</span>
-	<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://www.numberingplans.com/?page=analysis&amp;sub=imeinr&quot;</span>
-	<span class="n">postData</span> <span class="o">=</span> <span class="s2">&quot;i=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">num</span>
-	<span class="n">htmlData</span> <span class="o">=</span> <span class="n">getUrlData</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">postData</span><span class="p">)</span>
-	<span class="c1">#print htmlData</span>
-	<span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">IMEI_INFO</span><span class="p">:</span>
-		<span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">IMEI_INFO</span><span class="p">[</span><span class="n">info</span><span class="p">],</span><span class="n">htmlData</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-			<span class="n">retVal</span><span class="p">[</span><span class="n">info</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-			<span class="c1">#print retVal</span>
-	<span class="k">return</span> <span class="n">retVal</span>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-	<span class="n">socket</span><span class="o">.</span><span class="n">setdefaulttimeout</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
-	<span class="n">droid</span> <span class="o">=</span> <span class="n">android</span><span class="o">.</span><span class="n">Android</span><span class="p">()</span>
-
-	<span class="k">try</span><span class="p">:</span>
-		<span class="n">imei</span> <span class="o">=</span> <span class="n">droid</span><span class="o">.</span><span class="n">getDeviceId</span><span class="p">()</span>
-		<span class="c1">#print imei.result</span>
-		<span class="n">msg</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;检索IMEI信息...&quot;</span>
-		<span class="n">droid</span><span class="o">.</span><span class="n">makeToast</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-		<span class="n">imeiInfo</span> <span class="o">=</span> <span class="n">analysisIMEI</span><span class="p">(</span><span class="n">imei</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
-
-		<span class="k">if</span> <span class="n">imeiInfo</span><span class="p">:</span>
-			<span class="n">info</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;IMEI信息： </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span><span class="n">imeiInfo</span><span class="p">[</span><span class="s1">&#39;Full IMEI Presentation&#39;</span><span class="p">]</span>
-			<span class="n">info</span> <span class="o">+=</span> <span class="sa">u</span><span class="s2">&quot;手机制造商： </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span><span class="n">imeiInfo</span><span class="p">[</span><span class="s1">&#39;Type Allocation Holder&#39;</span><span class="p">]</span>
-			<span class="n">info</span> <span class="o">+=</span> <span class="sa">u</span><span class="s2">&quot;手机型号： </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span><span class="n">imeiInfo</span><span class="p">[</span><span class="s1">&#39;Mobile Equipment Type&#39;</span><span class="p">]</span>
-			<span class="n">info</span> <span class="o">+=</span> <span class="sa">u</span><span class="s2">&quot;销售市场： </span><span class="si">%s</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span><span class="n">imeiInfo</span><span class="p">[</span><span class="s1">&#39;Primary Market&#39;</span><span class="p">]</span>
-			<span class="n">droid</span><span class="o">.</span><span class="n">dialogCreateAlert</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;你的手机信息&quot;</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
-			<span class="n">droid</span><span class="o">.</span><span class="n">dialogShow</span><span class="p">()</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="n">droid</span><span class="o">.</span><span class="n">makeToast</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;检索失败.可能是网络问题或不正确的IMEI号码,请重试&quot;</span><span class="p">)</span>
-	<span class="k">except</span><span class="p">:</span>
-		<span class="k">print</span> <span class="s1">&#39;Usage: python imei.py 357194040705758&#39;</span></code></pre></figure>
-
+<p><b>参考</b></p>
+<ul>
+  <li>《PHP 7底层设计与源码实现》</li>
+  <li>PHP7.2-SRC</li>
+</ul>
 
       <footer class="entry-meta">
-        <span class="entry-tags"><a href="https://solupro.org/tags/#Python" title="Pages tagged Python" class="tag">Python</a><a href="https://solupro.org/tags/#code" title="Pages tagged code" class="tag">code</a></span>
-        <span><a href="https://solupro.org/python-get-imei-info/" rel="bookmark" title="SL4A - 获取IMEI信息">SL4A - 获取IMEI信息</a> was published on <span class="entry-date date published updated"><time datetime="2012-01-30T00:00:00+08:00">January 30, 2012</time></span></span>
+        <span class="entry-tags"><a href="https://solupro.org/tags/#C" title="Pages tagged C" class="tag">C</a><a href="https://solupro.org/tags/#PHP" title="Pages tagged PHP" class="tag">PHP</a><a href="https://solupro.org/tags/#code" title="Pages tagged code" class="tag">code</a></span>
+        <span><a href="https://solupro.org/PHP7-array-resize-and-rehash/" rel="bookmark" title="PHP7数组扩容和rehash">PHP7数组扩容和rehash</a> was published on <span class="entry-date date published updated"><time datetime="2018-12-24T00:00:00+08:00">December 24, 2018</time></span></span>
         
         <span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>
         <div class="social-share">
           <ul class="socialcount socialcount-small inline-list">
-            <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=https://solupro.org/python-get-imei-info/" title="Share on Facebook"><span class="count"><i class="icon-facebook-sign"></i> Like</span></a></li>
-            <li class="twitter"><a href="https://twitter.com/intent/tweet?text=https://solupro.org/python-get-imei-info/" title="Share on Twitter"><span class="count"><i class="icon-twitter-sign"></i> Tweet</span></a></li>
-            <li class="googleplus"><a href="https://plus.google.com/share?url=https://solupro.org/python-get-imei-info/" title="Share on Google Plus"><span class="count"><i class="icon-google-plus-sign"></i> +1</span></a></li>
+            <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=https://solupro.org/PHP7-array-resize-and-rehash/" title="Share on Facebook"><span class="count"><i class="icon-facebook-sign"></i> Like</span></a></li>
+            <li class="twitter"><a href="https://twitter.com/intent/tweet?text=https://solupro.org/PHP7-array-resize-and-rehash/" title="Share on Twitter"><span class="count"><i class="icon-twitter-sign"></i> Tweet</span></a></li>
+            <li class="googleplus"><a href="https://plus.google.com/share?url=https://solupro.org/PHP7-array-resize-and-rehash/" title="Share on Google Plus"><span class="count"><i class="icon-google-plus-sign"></i> +1</span></a></li>
           </ul>
         </div><!-- /.social-share -->
       </footer>
@@ -241,23 +177,23 @@
     <div class="read-more">
       
         <div class="read-more-header">
-          <a href="https://solupro.org" class="read-more-btn">Read More</a>
+          <a href="https://solupro.org/PHP7-packet-array/" class="read-more-btn">Read More</a>
         </div><!-- /.read-more-header -->
         <div class="read-more-content">
-          <h3><a href="https://solupro.org/PHP7-array-resize-and-rehash/" title="PHP7数组扩容和rehash">PHP7数组扩容和rehash</a></h3>
-          <p>PHP7数组扩容和rehash <a href="https://solupro.org/PHP7-array-resize-and-rehash/">Continue reading</a></p>
+          <h3><a href="https://solupro.org/PHP7-packet-array/" title="PHP7中的packed array">PHP7中的packed array</a></h3>
+          <p>PHP7中数组的一些改进 <a href="https://solupro.org/PHP7-packet-array/">Continue reading</a></p>
         </div><!-- /.read-more-content -->
       
       <div class="read-more-list">
         
           <div class="list-item">
-            <h4><a href="https://solupro.org/PHP7-packet-array/" title="PHP7中的packed array">PHP7中的packed array</a></h4>
-            <span>Published on December 09, 2018</span>
+            <h4><a href="https://solupro.org/PHP7-something-about-array/" title="PHP7中数组的一些改进">PHP7中数组的一些改进</a></h4>
+            <span>Published on December 01, 2018</span>
           </div><!-- /.list-item -->
         
           <div class="list-item">
-            <h4><a href="https://solupro.org/PHP7-something-about-array/" title="PHP7中数组的一些改进">PHP7中数组的一些改进</a></h4>
-            <span>Published on December 01, 2018</span>
+            <h4><a href="https://solupro.org/PHP__compare_maigc_method/" title="PHP __compare 魔术方法的实现">PHP __compare 魔术方法的实现</a></h4>
+            <span>Published on May 14, 2014</span>
           </div><!-- /.list-item -->
         
       </div><!-- /.read-more-list -->

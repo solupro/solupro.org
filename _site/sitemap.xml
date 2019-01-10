@@ -37,7 +37,15 @@
         <loc>https://solupro.org/page2/</loc>
     </url>
     
+    <url>
+        <loc>https://solupro.org/page3/</loc>
+    </url>
+    
 
+    
+    <url>
+        <loc>https://solupro.org/PHP7-array-resize-and-rehash/</loc>
+    </url>
     
     <url>
         <loc>https://solupro.org/PHP7-packet-array/</loc>

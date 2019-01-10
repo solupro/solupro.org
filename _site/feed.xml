@@ -4,7 +4,7 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="https://solupro.org/feed.xml" />
 <link rel="alternate" type="text/html" href="https://solupro.org" />
-<updated>2018-12-27T11:37:46+08:00</updated>
+<updated>2019-01-10T18:32:02+08:00</updated>
 <id>https://solupro.org/</id>
 <author>
   <name>Solu Scarlet</name>
@@ -14,11 +14,48 @@
 
 
 <entry>
+  <title type="html"><![CDATA[PHP7数组扩容和rehash]]></title>
+ <link rel="alternate" type="text/html" href="https://solupro.org/PHP7-array-resize-and-rehash/" />
+  <id>https://solupro.org/PHP7-array-resize-and-rehash</id>
+  <published>2018-12-24T00:00:00+08:00</published>
+  <updated>2018-12-24T00:00:00+08:00</updated>
+  <author>
+    <name>Solu Scarlet</name>
+    <uri>https://solupro.org</uri>
+    <email>sendsoluex@gmail.com</email>
+  </author>
+  <content type="html">&lt;p&gt;&lt;b&gt;TL;DR&lt;/b&gt;&lt;br /&gt;
+&lt;b&gt;数组初始化容量为8，最大是0x80000000，每次扩容为原容量的2倍。&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;扩容&lt;/b&gt;&lt;br /&gt;
+数组插入新元素的时候会调用&lt;code&gt;ZEND_HASH_IF_FULL_DO_RESIZE&lt;/code&gt;判断已使用容量是否大于等于数组容量（ht-&amp;gt;nNumUsed &amp;gt;= ht-&amp;gt;nTableSize）;&lt;br /&gt;
+条件成立再判断已使用是否大于有效元素加上有效元素除以32（ht-&amp;gt;nNumUsed &amp;gt; ht-&amp;gt;nNumOfElements + (ht-&amp;gt;nNumOfElements » 5)），符合这条件的先进行&lt;code&gt;rehash&lt;/code&gt;整理，不符合条件的判断数组容量是否小于HT_MAX_SIZE（0x80000000）;&lt;br /&gt;
+如果是则容量扩大至原来的2倍，uint32_t nSize = ht-&amp;gt;nTableSize + ht-&amp;gt;nTableSize; 在内存池申请 nSize* sizeof(Bucket) + nSize* sizeof(uint32_t)大小的新数据地址;&lt;br /&gt;
+设置新的nTableSize和nTableMask，修改ht-&amp;gt;arData指向新地址，把旧Bucket数据拷贝到新地址，释放旧地址内存，执行&lt;code&gt;zend_hash_rehash&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;rehash&lt;/b&gt;&lt;br /&gt;
+首先调用HT_HASH_RESET重置所有索引为-1；&lt;br /&gt;
+如果数组所有元素都是有效元素则按arData数组顺序重新分配索引，原索引存在元素值zval.u2.next；&lt;br /&gt;
+否则循环遍历bucket至nNumUsed，去除IS_UNDEF的元素，更新nNumUsed。&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;参考&lt;/b&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;《PHP 7底层设计与源码实现》&lt;/li&gt;
+  &lt;li&gt;PHP7.2-SRC&lt;/li&gt;
+&lt;/ul&gt;
+
+  &lt;p&gt;&lt;a href=&quot;https://solupro.org/PHP7-array-resize-and-rehash/&quot;&gt;PHP7数组扩容和rehash&lt;/a&gt; was originally published by Solu Scarlet at &lt;a href=&quot;https://solupro.org&quot;&gt;Solu's 记事簿&lt;/a&gt; on December 24, 2018.&lt;/p&gt;</content>
+</entry>
+
+
+<entry>
   <title type="html"><![CDATA[PHP7中的packed array]]></title>
  <link rel="alternate" type="text/html" href="https://solupro.org/PHP7-packet-array/" />
   <id>https://solupro.org/PHP7-packet-array</id>
-  <published>2019-12-09T00:00:00+08:00</published>
-  <updated>2019-12-09T00:00:00+08:00</updated>
+  <published>2018-12-09T00:00:00+08:00</published>
+  <updated>2018-12-09T00:00:00+08:00</updated>
   <author>
     <name>Solu Scarlet</name>
     <uri>https://solupro.org</uri>
@@ -79,7 +116,7 @@ shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为pac
   &lt;li&gt;nikic 博客&lt;/li&gt;
 &lt;/ul&gt;
 
-  &lt;p&gt;&lt;a href=&quot;https://solupro.org/PHP7-packet-array/&quot;&gt;PHP7中的packed array&lt;/a&gt; was originally published by Solu Scarlet at &lt;a href=&quot;https://solupro.org&quot;&gt;Solu's 记事簿&lt;/a&gt; on December 09, 2019.&lt;/p&gt;</content>
+  &lt;p&gt;&lt;a href=&quot;https://solupro.org/PHP7-packet-array/&quot;&gt;PHP7中的packed array&lt;/a&gt; was originally published by Solu Scarlet at &lt;a href=&quot;https://solupro.org&quot;&gt;Solu's 记事簿&lt;/a&gt; on December 09, 2018.&lt;/p&gt;</content>
 </entry>
 
 
