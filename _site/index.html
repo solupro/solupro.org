@@ -142,6 +142,42 @@
   
 <article class="hentry">
   <header>
+    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2019-01-10T00:00:00+08:00"><a href="https://solupro.org/PHP7-compare-array-with-number/">January 10, 2019</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP7-compare-array-with-number/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="https://solupro.org/PHP7-compare-array-with-number/" rel="bookmark" title="PHP7中数组和整型的比较" itemprop="url">PHP7中数组和整型的比较</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    
+      <p><b>起因</b> <br />
+在<code>V2EX</code>看到这帖子，平时是没试过这么玩，出于好奇翻了一下源码 <br />
+<img src="http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8add2zzoj20kc06c74q.jpg" alt="" /></p>
+
+<p><b>分析</b> <br />
+以 <code>[] &gt; 123;</code> 为例 <br />
+<img src="http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8aehqewxj211e0cumzd.jpg" alt="" /> <br />
+①略过词法分析语法分析AST生成，可以看到 op1 &gt; op2 的操作等同于 op2 &lt; op1，调用函数 is_smaller_function(result, op2, op1)</p>
+
+<p><img src="http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8af2q7ebj211q0ccwgj.jpg" alt="" /> <br />
+②接着调用 compare_function， 这里的 op1 == 123，op2 == []</p>
+
+<p><img src="http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8afwqc6ij211808egn2.jpg" alt="" /> <br />
+③ compare_function 其实就是各种类型的比较判断，引用类型转换继而比较blablabla，省略这些代码，因为当我们 op2 == IS_ARRAY 的时候都不成立，最终到达上图的判断，可以看到op1的值已经被忽略，所以无论是 123 还是 PHP_MAX_INT，result = -1 接着返回成功。回到图2，比较结果变成了 result = -1 &lt; 0; 恒为 true。</p>
+
+<p><b>结论</b> <br />
+数组 &gt; 任意数字类型 == true; 其他类型的比较也在compare_function找到，有兴趣的翻翻吧。</p>
+
+<p><b>参考</b></p>
+<ul>
+  <li>PHP7.2-SRC</li>
+</ul>
+
+    
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
     <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2018-12-24T00:00:00+08:00"><a href="https://solupro.org/PHP7-array-resize-and-rehash/">December 24, 2018</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP7-array-resize-and-rehash/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
     
       <h1 class="entry-title"><a href="https://solupro.org/PHP7-array-resize-and-rehash/" rel="bookmark" title="PHP7数组扩容和rehash" itemprop="url">PHP7数组扩容和rehash</a></h1>
@@ -327,44 +363,6 @@ shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为pac
 
 
       <p class=\"more\"><a href="/PHP__compare_maigc_method/">Read more...</a></p>
-    
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-12T00:00:00+08:00"><a href="https://solupro.org/php-two-array-function/">May 12, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-two-array-function/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="https://solupro.org/php-two-array-function/" rel="bookmark" title="PHP 实用的两个array函数" itemprop="url">PHP 实用的两个array函数</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    
-      <p>感觉比较实用的两个array函数，为了熟悉一下<code>HashTable</code>的操作就写成了extension的形式</p>
-
-<h3 id="array_insert">array_insert</h3>
-<hr />
-<p>–对应index插入值得的值<br />
-array array_insert ( array $input , int $index , mixed $value )</p>
-
-<p>示例:</p>
-
-<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
-<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">];</span>
-<span class="nb">var_dump</span><span class="p">(</span><span class="nx">array_insert</span><span class="p">(</span><span class="nv">$arr</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]));</span>
-<span class="cm">/* output */</span>
-<span class="k">array</span> <span class="p">(</span><span class="nx">size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-  <span class="s1">&#39;a&#39;</span> <span class="o">=&gt;</span> <span class="nx">int</span> <span class="mi">1</span>
-  <span class="s1">&#39;b&#39;</span> <span class="o">=&gt;</span> <span class="nx">int</span> <span class="mi">2</span>
-  <span class="s1">&#39;c&#39;</span> <span class="o">=&gt;</span> <span class="nx">int</span> <span class="mi">3</span>
-  <span class="mi">0</span> <span class="o">=&gt;</span> 
-    <span class="k">array</span> <span class="p">(</span><span class="nx">size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-      <span class="mi">0</span> <span class="o">=&gt;</span> <span class="nx">string</span> <span class="s1">&#39;foo&#39;</span> <span class="p">(</span><span class="nx">length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-      <span class="mi">1</span> <span class="o">=&gt;</span> <span class="nx">string</span> <span class="s1">&#39;bar&#39;</span> <span class="p">(</span><span class="nx">length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-  <span class="mi">1</span> <span class="o">=&gt;</span> <span class="nx">int</span> <span class="mi">4</span></code></pre></figure>
-
-
-      <p class=\"more\"><a href="/php-two-array-function/">Read more...</a></p>
     
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->

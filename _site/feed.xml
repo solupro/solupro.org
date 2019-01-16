@@ -4,13 +4,51 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="https://solupro.org/feed.xml" />
 <link rel="alternate" type="text/html" href="https://solupro.org" />
-<updated>2019-01-10T18:32:02+08:00</updated>
+<updated>2019-01-16T12:00:11+08:00</updated>
 <id>https://solupro.org/</id>
 <author>
   <name>Solu Scarlet</name>
   <uri>https://solupro.org/</uri>
   <email>sendsoluex@gmail.com</email>
 </author>
+
+
+<entry>
+  <title type="html"><![CDATA[PHP7中数组和整型的比较]]></title>
+ <link rel="alternate" type="text/html" href="https://solupro.org/PHP7-compare-array-with-number/" />
+  <id>https://solupro.org/PHP7-compare-array-with-number</id>
+  <published>2019-01-10T00:00:00+08:00</published>
+  <updated>2019-01-10T00:00:00+08:00</updated>
+  <author>
+    <name>Solu Scarlet</name>
+    <uri>https://solupro.org</uri>
+    <email>sendsoluex@gmail.com</email>
+  </author>
+  <content type="html">&lt;p&gt;&lt;b&gt;起因&lt;/b&gt; &lt;br /&gt;
+在&lt;code&gt;V2EX&lt;/code&gt;看到这帖子，平时是没试过这么玩，出于好奇翻了一下源码 &lt;br /&gt;
+&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8add2zzoj20kc06c74q.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;分析&lt;/b&gt; &lt;br /&gt;
+以 &lt;code&gt;[] &amp;gt; 123;&lt;/code&gt; 为例 &lt;br /&gt;
+&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8aehqewxj211e0cumzd.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
+①略过词法分析语法分析AST生成，可以看到 op1 &amp;gt; op2 的操作等同于 op2 &amp;lt; op1，调用函数 is_smaller_function(result, op2, op1)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8af2q7ebj211q0ccwgj.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
+②接着调用 compare_function， 这里的 op1 == 123，op2 == []&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8afwqc6ij211808egn2.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
+③ compare_function 其实就是各种类型的比较判断，引用类型转换继而比较blablabla，省略这些代码，因为当我们 op2 == IS_ARRAY 的时候都不成立，最终到达上图的判断，可以看到op1的值已经被忽略，所以无论是 123 还是 PHP_MAX_INT，result = -1 接着返回成功。回到图2，比较结果变成了 result = -1 &amp;lt; 0; 恒为 true。&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;结论&lt;/b&gt; &lt;br /&gt;
+数组 &amp;gt; 任意数字类型 == true; 其他类型的比较也在compare_function找到，有兴趣的翻翻吧。&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;参考&lt;/b&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;PHP7.2-SRC&lt;/li&gt;
+&lt;/ul&gt;
+
+  &lt;p&gt;&lt;a href=&quot;https://solupro.org/PHP7-compare-array-with-number/&quot;&gt;PHP7中数组和整型的比较&lt;/a&gt; was originally published by Solu Scarlet at &lt;a href=&quot;https://solupro.org&quot;&gt;Solu's 记事簿&lt;/a&gt; on January 10, 2019.&lt;/p&gt;</content>
+</entry>
 
 
 <entry>

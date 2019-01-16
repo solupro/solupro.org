@@ -142,6 +142,44 @@
   
 <article class="hentry">
   <header>
+    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-12T00:00:00+08:00"><a href="https://solupro.org/php-two-array-function/">May 12, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-two-array-function/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="https://solupro.org/php-two-array-function/" rel="bookmark" title="PHP 实用的两个array函数" itemprop="url">PHP 实用的两个array函数</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    
+      <p>感觉比较实用的两个array函数，为了熟悉一下<code>HashTable</code>的操作就写成了extension的形式</p>
+
+<h3 id="array_insert">array_insert</h3>
+<hr />
+<p>–对应index插入值得的值<br />
+array array_insert ( array $input , int $index , mixed $value )</p>
+
+<p>示例:</p>
+
+<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">];</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nx">array_insert</span><span class="p">(</span><span class="nv">$arr</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]));</span>
+<span class="cm">/* output */</span>
+<span class="k">array</span> <span class="p">(</span><span class="nx">size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+  <span class="s1">&#39;a&#39;</span> <span class="o">=&gt;</span> <span class="nx">int</span> <span class="mi">1</span>
+  <span class="s1">&#39;b&#39;</span> <span class="o">=&gt;</span> <span class="nx">int</span> <span class="mi">2</span>
+  <span class="s1">&#39;c&#39;</span> <span class="o">=&gt;</span> <span class="nx">int</span> <span class="mi">3</span>
+  <span class="mi">0</span> <span class="o">=&gt;</span> 
+    <span class="k">array</span> <span class="p">(</span><span class="nx">size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+      <span class="mi">0</span> <span class="o">=&gt;</span> <span class="nx">string</span> <span class="s1">&#39;foo&#39;</span> <span class="p">(</span><span class="nx">length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+      <span class="mi">1</span> <span class="o">=&gt;</span> <span class="nx">string</span> <span class="s1">&#39;bar&#39;</span> <span class="p">(</span><span class="nx">length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+  <span class="mi">1</span> <span class="o">=&gt;</span> <span class="nx">int</span> <span class="mi">4</span></code></pre></figure>
+
+
+      <p class=\"more\"><a href="/php-two-array-function/">Read more...</a></p>
+    
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
     <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-10T00:00:00+08:00"><a href="https://solupro.org/php-access-private/">May 10, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-access-private/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
     
       <h1 class="entry-title"><a href="https://solupro.org/php-access-private/" rel="bookmark" title="PHP 一种访问私有属性的方法" itemprop="url">PHP 一种访问私有属性的方法</a></h1>
@@ -271,38 +309,6 @@ $ make libphp5.dylib &amp;&amp; make install</p>
 
 
       <p class=\"more\"><a href="/php-opd-another-vld/">Read more...</a></p>
-    
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2013-02-04T00:00:00+08:00"><a href="https://solupro.org/php-disable-function/">February 04, 2013</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-disable-function/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="https://solupro.org/php-disable-function/" rel="bookmark" title="PHP - 使disable_function支持通配符" itemprop="url">PHP - 使disable_function支持通配符</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    
-      <p>很久很久以前，翻<code>php.ini</code>的时候看到了一堆“同族”的函数</p>
-
-<blockquote>
-  <p>; This directive allows you to disable certain functions for security reasons.
-; It receives a comma-delimited list of function names. This directive is
-; <em>NOT</em> affected by whether Safe Mode is turned On or Off.
-; http://php.net/disable-functions
-disable_functions = pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,
-pcntl_wifstopped,pcntl_wifsignaled,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,
-pcntl_signal,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,
-pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority</p>
-</blockquote>
-
-<p>当时就想要是支持通配符那么直接写成<code>pcntl_*</code>这样就简便多了。想法是有了，但是不知道怎么实现好。偶然的机会看到了《<a href="http://www.80vul.com/webzine_0x05/0x07%20%E6%B5%85%E8%B0%88%E4%BB%8EPHP%E5%86%85%E6%A0%B8%E5%B1%82%E9%9D%A2%E9%98%B2%E8%8C%83PHP%20WebShell.html">浅谈从PHP内核层面防范PHP WebShell</a>》这文章，当中提到<code>zend_disable_function</code>这个函数，于是感觉先前的通配符想法可以实现了。</p>
-
-<p>说一下简单的思路吧：在<code>php.ini</code>读取配置，遍历函数表，正则匹配函数然后删除掉，注册一个同名函数以便给前端提示。</p>
-
-
-      <p class=\"more\"><a href="/php-disable-function/">Read more...</a></p>
     
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
