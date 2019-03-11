@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 {% endhighlight %}
 
 因为要使用正则，我在这里选择了`pcre`库，于是我们编译的时候要带上`-lpcre`。运行看看我们的效果。
-![](http://static.oschina.net/uploads/space/2013/0204/115147_uZQT_111529.png)
+![](//static.oschina.net/uploads/space/2013/0204/115147_uZQT_111529.png)
 嗯，好像还不错的样子。接下来就是关键了，怎么改编成PHP扩展
 
 至于怎么快速创建一个PHP扩展的就不介绍了，可以参考《[快速开发一个PHP扩展](http://blog.csdn.net/heiyeshuwu/article/details/3453854)》，我在这里新建了一个叫`solutest`的扩展。接着我们把上面的函数（main函数对应的改一下名字，我这里改为 static void remove_function()）贴到`solutest.c`（文件名对应你创建时候输入的名字）里面，对应的内存操作函数可以换成由php内核提供的e*系列函数，malloc->emalloc, free->efree ...还有一点是用e*系列申请的内存才用`efree`来释放，囧在这里吃过亏。（详细参考《PHP扩展开发与内核应用》- [内存管理](http://www.walu.cc/phpbook/3.1.md)）。然后在 `PHP_MINIT_FUNCTION` 里面调用我们的 `remove_function`，为什么选择 PHP_MINIT_FUNCTION ？或者你可以尝试在 `PHP_RINIT_FUNCTION` 调用 （参考《PHP扩展开发与内核应用》- [PHP启动与终结](http://www.walu.cc/phpbook/1.2.md)）。编译看看效果，别忘了需要`pcre`库的支持，所以要加上 pcre.h 后，然后编辑 Makefile 在EXTRA_LIBS 加上 `-lpcre`。
@@ -137,7 +137,7 @@ extension=solutest.so
 
 `sudo /etc/init.d/php5-fpm restart `  
 我们重启fpm看看效果(如果apache环境直接重启apache服务器即可)
-![](http://static.oschina.net/uploads/space/2013/0204/151750_Nt7k_111529.png)
+![](//static.oschina.net/uploads/space/2013/0204/151750_Nt7k_111529.png)
 嗯～跑起来了。
 
 怎么获取系统的函数呢？我们可以参考一下`zend_disable_function`的实现
@@ -256,7 +256,7 @@ static void remove_function() {
 {% endhighlight %}
 
 保存以后又是一轮的  make && sudo make install。sudo /etc/init.d/php5-fpm restart，刷啦啦的一大片，吓坏了吧，保存下来看看有多少。
-![](http://static.oschina.net/uploads/space/2013/0204/160012_pMwU_111529.png)
+![](//static.oschina.net/uploads/space/2013/0204/160012_pMwU_111529.png)
 应该差不多了吧，后面有...省略号是不是buffer什么的满了所以还没输出完呢？？？
 
 OK，下面是重点了，删除对应的函数。其实我们抄一下`zend_disable_function`就OK了，有同学会问为什么不直接调用`zend_disable_function`，别急，下面我会说道。再次修改我们的`remove_function`函数，这次修改便利的循环体和 `char *ini` 就好
@@ -302,10 +302,10 @@ static zend_function_entry disabled_function[] = {
 {% endhighlight %}
 
 估计有同学吐槽为什么用***代替了显示的函数名，这就是为什么我不调用`zend_disable_function`的原因。当时卡在这里很久，一直段错误，后来无意中注释了 get_active_function_name(TSRMLS_C) 就跑起来了╯-__-)╯ ╩╩，求告知(2014-05-12 update 问题已解决，下面会给出代码地址)。。和上面一个编译重启服务器什么的，然后看效果，因为我们配置写的是`array_p*`，所以一下函数被禁用了。（测试完以后记得关闭输出）
-![](http://static.oschina.net/uploads/space/2013/0204/162346_lRR8_111529.png)
+![](//static.oschina.net/uploads/space/2013/0204/162346_lRR8_111529.png)
 
 然后随便写个脚本，调用一下array_pop函数什么的，然后执行之。
-![](http://static.oschina.net/uploads/space/2013/0204/162548_I77d_111529.png)
+![](//static.oschina.net/uploads/space/2013/0204/162548_I77d_111529.png)
 
 It's work!! :)
 
@@ -360,7 +360,7 @@ extension=solutest.so
 solutest.disable_functions = array_p*,
 
 编译重启服务器，然后浏览`phpinfo`会发现我们的配置已经被读取了。
-![](http://static.oschina.net/uploads/space/2013/0204/165144_uZ1e_111529.png)
+![](//static.oschina.net/uploads/space/2013/0204/165144_uZ1e_111529.png)
 
 最后把我们的配置利用上，可以通过`SOLUEXT_G(disable_functions)`宏来访问，对应修改 `remove_function` 函数。去掉 `char *ini` 因为已经不需要了，配置从`php.ini` 读取，然后修改 s 
 
@@ -369,7 +369,7 @@ s = estrndup(SOLUTEST_G(disable_functions), strlen(SOLUTEST_G(disable_functions)
 {% endhighlight %}
 
 OK，保存编译重启服务器测试。
-![](http://static.oschina.net/uploads/space/2013/0204/170137_r1sY_111529.png)
+![](//static.oschina.net/uploads/space/2013/0204/170137_r1sY_111529.png)
 
 :)预期的效果达到了。打完收工。
 

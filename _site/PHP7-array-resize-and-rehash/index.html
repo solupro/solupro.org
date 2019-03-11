@@ -139,7 +139,7 @@
       <p><b>TL;DR</b><br />
 <b>数组初始化容量为8，最大是0x80000000，每次扩容为原容量的2倍。</b></p>
 
-<p><img src="http://ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg" alt="" /></p>
+<p><img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg" alt="" /></p>
 
 <p><b>扩容</b><br />
 数组插入新元素的时候会调用<code>ZEND_HASH_IF_FULL_DO_RESIZE</code>判断已使用容量是否大于等于数组容量（ht-&gt;nNumUsed &gt;= ht-&gt;nTableSize）;<br />

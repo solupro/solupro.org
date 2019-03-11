@@ -32,7 +32,7 @@ $ make libphp5.dylib && make install
 ###PHP相关struct的改变
 ---
 到源码目录执行make的时候杯具又发生了
-![](http://static.oschina.net/uploads/space/2014/0218/105937_x2Yb_111529.png)
+![](//static.oschina.net/uploads/space/2014/0218/105937_x2Yb_111529.png)
 
 赶紧翻源码看了一下(我系统PHP是brew安装的5.4.24，相应的我下载了5.4.19的源码，但是鸟哥文章中用的是5.3 alpha2 ) 
 
@@ -75,7 +75,7 @@ $str = "hello world\n";
 foo($str);
 {% endhighlight %}
 
-![](http://static.oschina.net/uploads/space/2014/0218/111141_0iNg_111529.png)
+![](//static.oschina.net/uploads/space/2014/0218/111141_0iNg_111529.png)
 
 功能上当然不及`vld`，比如没有把函数，类的内部opcode dump出来什么的。
 这只是个`PHP embed`模式的一个例子，发挥你的想象力应该还会有很多好玩的东西。

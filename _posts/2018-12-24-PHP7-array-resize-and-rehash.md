@@ -10,7 +10,7 @@ share: true
 <b>TL;DR</b>  
 <b>数组初始化容量为8，最大是0x80000000，每次扩容为原容量的2倍。</b>
 
-![](http://ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg)
+![](//ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg)
 
 <b>扩容</b>  
 数组插入新元素的时候会调用`ZEND_HASH_IF_FULL_DO_RESIZE`判断已使用容量是否大于等于数组容量（ht->nNumUsed >= ht->nTableSize）;  

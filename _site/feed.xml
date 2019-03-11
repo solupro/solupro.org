@@ -4,7 +4,7 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="https://solupro.org/feed.xml" />
 <link rel="alternate" type="text/html" href="https://solupro.org" />
-<updated>2019-01-16T12:00:11+08:00</updated>
+<updated>2019-03-11T14:51:21+08:00</updated>
 <id>https://solupro.org/</id>
 <author>
   <name>Solu Scarlet</name>
@@ -26,17 +26,17 @@
   </author>
   <content type="html">&lt;p&gt;&lt;b&gt;起因&lt;/b&gt; &lt;br /&gt;
 在&lt;code&gt;V2EX&lt;/code&gt;看到这帖子，平时是没试过这么玩，出于好奇翻了一下源码 &lt;br /&gt;
-&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8add2zzoj20kc06c74q.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz8add2zzoj20kc06c74q.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;b&gt;分析&lt;/b&gt; &lt;br /&gt;
 以 &lt;code&gt;[] &amp;gt; 123;&lt;/code&gt; 为例 &lt;br /&gt;
-&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8aehqewxj211e0cumzd.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
+&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz8aehqewxj211e0cumzd.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
 ①略过词法分析语法分析AST生成，可以看到 op1 &amp;gt; op2 的操作等同于 op2 &amp;lt; op1，调用函数 is_smaller_function(result, op2, op1)&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8af2q7ebj211q0ccwgj.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
+&lt;p&gt;&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz8af2q7ebj211q0ccwgj.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
 ②接着调用 compare_function， 这里的 op1 == 123，op2 == []&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz8afwqc6ij211808egn2.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
+&lt;p&gt;&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz8afwqc6ij211808egn2.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
 ③ compare_function 其实就是各种类型的比较判断，引用类型转换继而比较blablabla，省略这些代码，因为当我们 op2 == IS_ARRAY 的时候都不成立，最终到达上图的判断，可以看到op1的值已经被忽略，所以无论是 123 还是 PHP_MAX_INT，result = -1 接着返回成功。回到图2，比较结果变成了 result = -1 &amp;lt; 0; 恒为 true。&lt;/p&gt;
 
 &lt;p&gt;&lt;b&gt;结论&lt;/b&gt; &lt;br /&gt;
@@ -65,7 +65,7 @@
   <content type="html">&lt;p&gt;&lt;b&gt;TL;DR&lt;/b&gt;&lt;br /&gt;
 &lt;b&gt;数组初始化容量为8，最大是0x80000000，每次扩容为原容量的2倍。&lt;/b&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;b&gt;扩容&lt;/b&gt;&lt;br /&gt;
 数组插入新元素的时候会调用&lt;code&gt;ZEND_HASH_IF_FULL_DO_RESIZE&lt;/code&gt;判断已使用容量是否大于等于数组容量（ht-&amp;gt;nNumUsed &amp;gt;= ht-&amp;gt;nTableSize）;&lt;br /&gt;
@@ -965,7 +965,7 @@ $ make libphp5.dylib &amp;amp;&amp;amp; make install&lt;/p&gt;
 
 &lt;h2 id=&quot;php相关struct的改变&quot;&gt;###PHP相关struct的改变&lt;/h2&gt;
 &lt;p&gt;到源码目录执行make的时候杯具又发生了
-&lt;img src=&quot;http://static.oschina.net/uploads/space/2014/0218/105937_x2Yb_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;img src=&quot;//static.oschina.net/uploads/space/2014/0218/105937_x2Yb_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;赶紧翻源码看了一下(我系统PHP是brew安装的5.4.24，相应的我下载了5.4.19的源码，但是鸟哥文章中用的是5.3 alpha2 )&lt;/p&gt;
 
@@ -1002,7 +1002,7 @@ $ make libphp5.dylib &amp;amp;&amp;amp; make install&lt;/p&gt;
 &lt;span class=&quot;x&quot;&gt;$str = &amp;quot;hello world\n&amp;quot;;&lt;/span&gt;
 &lt;span class=&quot;x&quot;&gt;foo($str);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;&lt;img src=&quot;http://static.oschina.net/uploads/space/2014/0218/111141_0iNg_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;//static.oschina.net/uploads/space/2014/0218/111141_0iNg_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;功能上当然不及&lt;code&gt;vld&lt;/code&gt;，比如没有把函数，类的内部opcode dump出来什么的。
 这只是个&lt;code&gt;PHP embed&lt;/code&gt;模式的一个例子，发挥你的想象力应该还会有很多好玩的东西。&lt;/p&gt;
@@ -1142,7 +1142,7 @@ pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setprior
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;因为要使用正则，我在这里选择了&lt;code&gt;pcre&lt;/code&gt;库，于是我们编译的时候要带上&lt;code&gt;-lpcre&lt;/code&gt;。运行看看我们的效果。
-&lt;img src=&quot;http://static.oschina.net/uploads/space/2013/0204/115147_uZQT_111529.png&quot; alt=&quot;&quot; /&gt;
+&lt;img src=&quot;//static.oschina.net/uploads/space/2013/0204/115147_uZQT_111529.png&quot; alt=&quot;&quot; /&gt;
 嗯，好像还不错的样子。接下来就是关键了，怎么改编成PHP扩展&lt;/p&gt;
 
 &lt;p&gt;至于怎么快速创建一个PHP扩展的就不介绍了，可以参考《&lt;a href=&quot;http://blog.csdn.net/heiyeshuwu/article/details/3453854&quot;&gt;快速开发一个PHP扩展&lt;/a&gt;》，我在这里新建了一个叫&lt;code&gt;solutest&lt;/code&gt;的扩展。接着我们把上面的函数（main函数对应的改一下名字，我这里改为 static void remove_function()）贴到&lt;code&gt;solutest.c&lt;/code&gt;（文件名对应你创建时候输入的名字）里面，对应的内存操作函数可以换成由php内核提供的e&lt;em&gt;系列函数，malloc-&amp;gt;emalloc, free-&amp;gt;efree …还有一点是用e&lt;/em&gt;系列申请的内存才用&lt;code&gt;efree&lt;/code&gt;来释放，囧在这里吃过亏。（详细参考《PHP扩展开发与内核应用》- &lt;a href=&quot;http://www.walu.cc/phpbook/3.1.md&quot;&gt;内存管理&lt;/a&gt;）。然后在 &lt;code&gt;PHP_MINIT_FUNCTION&lt;/code&gt; 里面调用我们的 &lt;code&gt;remove_function&lt;/code&gt;，为什么选择 PHP_MINIT_FUNCTION ？或者你可以尝试在 &lt;code&gt;PHP_RINIT_FUNCTION&lt;/code&gt; 调用 （参考《PHP扩展开发与内核应用》- &lt;a href=&quot;http://www.walu.cc/phpbook/1.2.md&quot;&gt;PHP启动与终结&lt;/a&gt;）。编译看看效果，别忘了需要&lt;code&gt;pcre&lt;/code&gt;库的支持，所以要加上 pcre.h 后，然后编辑 Makefile 在EXTRA_LIBS 加上 &lt;code&gt;-lpcre&lt;/code&gt;。&lt;/p&gt;
@@ -1156,7 +1156,7 @@ extension=solutest.so&lt;/p&gt;
 
 &lt;p&gt;&lt;code&gt;sudo /etc/init.d/php5-fpm restart &lt;/code&gt;&lt;br /&gt;
 我们重启fpm看看效果(如果apache环境直接重启apache服务器即可)
-&lt;img src=&quot;http://static.oschina.net/uploads/space/2013/0204/151750_Nt7k_111529.png&quot; alt=&quot;&quot; /&gt;
+&lt;img src=&quot;//static.oschina.net/uploads/space/2013/0204/151750_Nt7k_111529.png&quot; alt=&quot;&quot; /&gt;
 嗯～跑起来了。&lt;/p&gt;
 
 &lt;p&gt;怎么获取系统的函数呢？我们可以参考一下&lt;code&gt;zend_disable_function&lt;/code&gt;的实现&lt;/p&gt;
@@ -1267,7 +1267,7 @@ extension=solutest.so&lt;/p&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;保存以后又是一轮的  make &amp;amp;&amp;amp; sudo make install。sudo /etc/init.d/php5-fpm restart，刷啦啦的一大片，吓坏了吧，保存下来看看有多少。
-&lt;img src=&quot;http://static.oschina.net/uploads/space/2013/0204/160012_pMwU_111529.png&quot; alt=&quot;&quot; /&gt;
+&lt;img src=&quot;//static.oschina.net/uploads/space/2013/0204/160012_pMwU_111529.png&quot; alt=&quot;&quot; /&gt;
 应该差不多了吧，后面有…省略号是不是buffer什么的满了所以还没输出完呢？？？&lt;/p&gt;
 
 &lt;p&gt;OK，下面是重点了，删除对应的函数。其实我们抄一下&lt;code&gt;zend_disable_function&lt;/code&gt;就OK了，有同学会问为什么不直接调用&lt;code&gt;zend_disable_function&lt;/code&gt;，别急，下面我会说道。再次修改我们的&lt;code&gt;remove_function&lt;/code&gt;函数，这次修改便利的循环体和 &lt;code&gt;char *ini&lt;/code&gt; 就好&lt;/p&gt;
@@ -1307,10 +1307,10 @@ extension=solutest.so&lt;/p&gt;
 &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;估计有同学吐槽为什么用***代替了显示的函数名，这就是为什么我不调用&lt;code&gt;zend_disable_function&lt;/code&gt;的原因。当时卡在这里很久，一直段错误，后来无意中注释了 get_active_function_name(TSRMLS_C) 就跑起来了╯-__-)╯ ╩╩，求告知(2014-05-12 update 问题已解决，下面会给出代码地址)。。和上面一个编译重启服务器什么的，然后看效果，因为我们配置写的是&lt;code&gt;array_p*&lt;/code&gt;，所以一下函数被禁用了。（测试完以后记得关闭输出）
-&lt;img src=&quot;http://static.oschina.net/uploads/space/2013/0204/162346_lRR8_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;img src=&quot;//static.oschina.net/uploads/space/2013/0204/162346_lRR8_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;然后随便写个脚本，调用一下array_pop函数什么的，然后执行之。
-&lt;img src=&quot;http://static.oschina.net/uploads/space/2013/0204/162548_I77d_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;img src=&quot;//static.oschina.net/uploads/space/2013/0204/162548_I77d_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;It’s work!! :)&lt;/p&gt;
 
@@ -1357,14 +1357,14 @@ solutest.disable_functions = array_p*,&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;编译重启服务器，然后浏览&lt;code&gt;phpinfo&lt;/code&gt;会发现我们的配置已经被读取了。
-&lt;img src=&quot;http://static.oschina.net/uploads/space/2013/0204/165144_uZ1e_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;img src=&quot;//static.oschina.net/uploads/space/2013/0204/165144_uZ1e_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;最后把我们的配置利用上，可以通过&lt;code&gt;SOLUEXT_G(disable_functions)&lt;/code&gt;宏来访问，对应修改 &lt;code&gt;remove_function&lt;/code&gt; 函数。去掉 &lt;code&gt;char *ini&lt;/code&gt; 因为已经不需要了，配置从&lt;code&gt;php.ini&lt;/code&gt; 读取，然后修改 s&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;estrndup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SOLUTEST_G&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;disable_functions&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;strlen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SOLUTEST_G&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;disable_functions&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)));&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;OK，保存编译重启服务器测试。
-&lt;img src=&quot;http://static.oschina.net/uploads/space/2013/0204/170137_r1sY_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;img src=&quot;//static.oschina.net/uploads/space/2013/0204/170137_r1sY_111529.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;:)预期的效果达到了。打完收工。&lt;/p&gt;
 
