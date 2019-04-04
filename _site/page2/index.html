@@ -142,6 +142,64 @@
   
 <article class="hentry">
   <header>
+    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-14T00:00:00+08:00"><a href="https://solupro.org/PHP__compare_maigc_method/">May 14, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP__compare_maigc_method/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="https://solupro.org/PHP__compare_maigc_method/" rel="bookmark" title="PHP __compare 魔术方法的实现" itemprop="url">PHP __compare 魔术方法的实现</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    
+      <p>之前吐槽过PHP为什么没<code>__compare</code>魔术方法《<a href="//solupro.org/php-__compare/">PHP __compare?</a>》，可能开发组觉得没有必要吧，毕竟对象默认的比较一般情况已经够用了。 于是乎怀着no zuo no die心情尝试去实现一下，发现难度比预想要小。但由于拖延症的原因这篇文拖到现在才写，还有一方面就是修改的地方比较多和杂乱。</p>
+
+<p>先看看效果吧！</p>
+
+<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<span class="c1">//默认情况</span>
+<span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="nv">$v</span> <span class="o">=</span> <span class="p">[];</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="k">array</span> <span class="nv">$v</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">v</span> <span class="o">=</span> <span class="nv">$v</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$o1</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]);</span>
+<span class="nv">$o2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]);</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$o1</span> <span class="o">&gt;</span> <span class="nv">$o2</span><span class="p">);</span>
+<span class="cm">/* output */</span>
+<span class="nx">bool</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+
+<span class="c1">//添加 __compare</span>
+<span class="k">class</span> <span class="nc">Foo</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="nv">$v</span> <span class="o">=</span> <span class="p">[];</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="k">array</span> <span class="nv">$v</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">v</span> <span class="o">=</span> <span class="nv">$v</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__compare</span><span class="p">(</span><span class="nv">$o</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nv">$o</span><span class="o">-&gt;</span><span class="na">v</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$o1</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]);</span>
+<span class="nv">$o2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]);</span>
+<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$o1</span> <span class="o">&gt;</span> <span class="nv">$o2</span><span class="p">);</span>
+<span class="cm">/* output */</span>
+<span class="nx">bool</span><span class="p">(</span><span class="k">true</span><span class="p">)</span></code></pre></figure>
+
+<p>可以看出，$o1, $o2的比较行为已经被<code>__compare</code>改变</p>
+
+
+      <p class=\"more\"><a href="/PHP__compare_maigc_method/">Read more...</a></p>
+    
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
     <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-12T00:00:00+08:00"><a href="https://solupro.org/php-two-array-function/">May 12, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-two-array-function/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
     
       <h1 class="entry-title"><a href="https://solupro.org/php-two-array-function/" rel="bookmark" title="PHP 实用的两个array函数" itemprop="url">PHP 实用的两个array函数</a></h1>
@@ -272,43 +330,6 @@ array array_insert ( array $input , int $index , mixed $value )</p>
 
 
       <p class=\"more\"><a href="/php-__compare/">Read more...</a></p>
-    
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-02-18T00:00:00+08:00"><a href="https://solupro.org/php-opd-another-vld/">February 18, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-opd-another-vld/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="https://solupro.org/php-opd-another-vld/" rel="bookmark" title="opd-山寨版vld" itemprop="url">opd-山寨版vld</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    
-      <h2 id="起因">###起因</h2>
-<p>又是很久很久以前（大概1年多了）看到鸟哥的《<a href="http://www.laruence.com/2008/09/23/539.html">使用PHP Embed SAPI实现Opcodes查看器</a>》，然后在Ubuntu上跟着折腾了起来，最后勉强也是跑起来了。最近找回了这份代码，打算在新笔记本上编译，然后问题就接踵而来。</p>
-
-<h2 id="mac上编译php-embed-sapi">###Mac上编译PHP embed sapi</h2>
-<p>按<code>Ubuntu上</code>的套路，直接</p>
-
-<blockquote>
-  <p>$ cd php-src/<br />
-$ ./configure –enable-embed<br />
-$ make &amp;&amp; make install</p>
-</blockquote>
-
-<p>编译出<code>libphp5.so</code>, 但是Mac上不认这一套，后来Google到《<a href="http://shuoshi.me/?p=23">在mac上开启php的embed模式</a>》才知道要编译成<code>libphp5.dylib</code>。其实按照文章我打上patch执行make提示没有相关规则，继续Google后《<a href="http://chengzhubo.com/post/2013-07-16/40051671070">在mac上开启php的embed模式</a>》（别吐槽为什么名字一样，其实不是同一篇）。<code>autoconf</code>以后重新configure</p>
-
-<blockquote>
-  <p>$ cd php-src/ <br />
-$ ./configure –enable-embed <br />
-$ make libphp5.dylib &amp;&amp; make install</p>
-</blockquote>
-
-<p>到这里动态链接库就编译好了。</p>
-
-
-      <p class=\"more\"><a href="/php-opd-another-vld/">Read more...</a></p>
     
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->

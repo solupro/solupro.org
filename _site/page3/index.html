@@ -142,6 +142,43 @@
   
 <article class="hentry">
   <header>
+    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-02-18T00:00:00+08:00"><a href="https://solupro.org/php-opd-another-vld/">February 18, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-opd-another-vld/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="https://solupro.org/php-opd-another-vld/" rel="bookmark" title="opd-山寨版vld" itemprop="url">opd-山寨版vld</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    
+      <h2 id="起因">###起因</h2>
+<p>又是很久很久以前（大概1年多了）看到鸟哥的《<a href="http://www.laruence.com/2008/09/23/539.html">使用PHP Embed SAPI实现Opcodes查看器</a>》，然后在Ubuntu上跟着折腾了起来，最后勉强也是跑起来了。最近找回了这份代码，打算在新笔记本上编译，然后问题就接踵而来。</p>
+
+<h2 id="mac上编译php-embed-sapi">###Mac上编译PHP embed sapi</h2>
+<p>按<code>Ubuntu上</code>的套路，直接</p>
+
+<blockquote>
+  <p>$ cd php-src/<br />
+$ ./configure –enable-embed<br />
+$ make &amp;&amp; make install</p>
+</blockquote>
+
+<p>编译出<code>libphp5.so</code>, 但是Mac上不认这一套，后来Google到《<a href="http://shuoshi.me/?p=23">在mac上开启php的embed模式</a>》才知道要编译成<code>libphp5.dylib</code>。其实按照文章我打上patch执行make提示没有相关规则，继续Google后《<a href="http://chengzhubo.com/post/2013-07-16/40051671070">在mac上开启php的embed模式</a>》（别吐槽为什么名字一样，其实不是同一篇）。<code>autoconf</code>以后重新configure</p>
+
+<blockquote>
+  <p>$ cd php-src/ <br />
+$ ./configure –enable-embed <br />
+$ make libphp5.dylib &amp;&amp; make install</p>
+</blockquote>
+
+<p>到这里动态链接库就编译好了。</p>
+
+
+      <p class=\"more\"><a href="/php-opd-another-vld/">Read more...</a></p>
+    
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
     <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2013-02-04T00:00:00+08:00"><a href="https://solupro.org/php-disable-function/">February 04, 2013</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/php-disable-function/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
     
       <h1 class="entry-title"><a href="https://solupro.org/php-disable-function/" rel="bookmark" title="PHP - 使disable_function支持通配符" itemprop="url">PHP - 使disable_function支持通配符</a></h1>

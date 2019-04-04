@@ -142,6 +142,54 @@
   
 <article class="hentry">
   <header>
+    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2019-04-04T00:00:00+08:00"><a href="https://solupro.org/Go-slice-parameter-for-function/">April 04, 2019</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/Go-slice-parameter-for-function/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="https://solupro.org/Go-slice-parameter-for-function/" rel="bookmark" title="Go语言中slice作为函数参数" itemprop="url">Go语言中slice作为函数参数</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    
+      <p><b>Go语言函数参数是值传递</b></p>
+<blockquote>
+  <p>from: https://golang.org/ref/spec#Calls <br />
+After they are evaluated, the parameters of the call are passed by value to the function and the called function begins execution.</p>
+</blockquote>
+
+<p>一个简单的例子</p>
+
+<figure class="highlight"><pre><code class="language-go" data-lang="go"><span></span><span class="nx">a</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">// len=1, cap=2</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="c1">// print: [0]</span>
+<span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="c1">// print: [0]</span>
+
+<span class="kd">func</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span>  <span class="p">{</span>
+    <span class="nx">s</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>函数<code>foo</code>对slice进行了append操作，但是并没改变它的值</p>
+
+<p>再看一个例子</p>
+
+<figure class="highlight"><pre><code class="language-go" data-lang="go"><span></span><span class="nx">a</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">// len=1, cap=2</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="c1">// print: [0]</span>
+<span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="c1">// print: [1]</span>
+
+<span class="kd">func</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span>  <span class="p">{</span>
+    <span class="nx">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="mi">1</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>函数<code>foo</code>修改了slice元素影响到了外部变量，说好的传值呢？！
+<img src="//ww1.sinaimg.cn/mw690/65fcc0d7ly1g1qrlqy1q7j2069069a9x.jpg" alt="" /></p>
+
+
+      <p class=\"more\"><a href="/Go-slice-parameter-for-function/">Read more...</a></p>
+    
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
     <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2019-01-10T00:00:00+08:00"><a href="https://solupro.org/PHP7-compare-array-with-number/">January 10, 2019</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP7-compare-array-with-number/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
     
       <h1 class="entry-title"><a href="https://solupro.org/PHP7-compare-array-with-number/" rel="bookmark" title="PHP7中数组和整型的比较" itemprop="url">PHP7中数组和整型的比较</a></h1>
@@ -305,64 +353,6 @@ shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为pac
 
 <p>参考：《PHP 7底层设计与源码实现》</p>
 
-    
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    <div class="entry-meta"><span class="entry-date date published updated"><time datetime="2014-05-14T00:00:00+08:00"><a href="https://solupro.org/PHP__compare_maigc_method/">May 14, 2014</a></time></span><span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>&nbsp; &bull; &nbsp;<span class="entry-comments"><a href="https://solupro.org/PHP__compare_maigc_method/#disqus_thread">Comment</a></span></div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="https://solupro.org/PHP__compare_maigc_method/" rel="bookmark" title="PHP __compare 魔术方法的实现" itemprop="url">PHP __compare 魔术方法的实现</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    
-      <p>之前吐槽过PHP为什么没<code>__compare</code>魔术方法《<a href="//solupro.org/php-__compare/">PHP __compare?</a>》，可能开发组觉得没有必要吧，毕竟对象默认的比较一般情况已经够用了。 于是乎怀着no zuo no die心情尝试去实现一下，发现难度比预想要小。但由于拖延症的原因这篇文拖到现在才写，还有一方面就是修改的地方比较多和杂乱。</p>
-
-<p>先看看效果吧！</p>
-
-<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
-<span class="c1">//默认情况</span>
-<span class="k">class</span> <span class="nc">Foo</span>
-<span class="p">{</span>
-    <span class="k">private</span> <span class="nv">$v</span> <span class="o">=</span> <span class="p">[];</span>
-
-    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="k">array</span> <span class="nv">$v</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">v</span> <span class="o">=</span> <span class="nv">$v</span><span class="p">;</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="nv">$o1</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]);</span>
-<span class="nv">$o2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]);</span>
-<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$o1</span> <span class="o">&gt;</span> <span class="nv">$o2</span><span class="p">);</span>
-<span class="cm">/* output */</span>
-<span class="nx">bool</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
-
-<span class="c1">//添加 __compare</span>
-<span class="k">class</span> <span class="nc">Foo</span>
-<span class="p">{</span>
-    <span class="k">private</span> <span class="nv">$v</span> <span class="o">=</span> <span class="p">[];</span>
-
-    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="k">array</span> <span class="nv">$v</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">v</span> <span class="o">=</span> <span class="nv">$v</span><span class="p">;</span>
-    <span class="p">}</span>
-
-    <span class="k">public</span> <span class="k">function</span> <span class="nf">__compare</span><span class="p">(</span><span class="nv">$o</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nv">$o</span><span class="o">-&gt;</span><span class="na">v</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="nv">$o1</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]);</span>
-<span class="nv">$o2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]);</span>
-<span class="nb">var_dump</span><span class="p">(</span><span class="nv">$o1</span> <span class="o">&gt;</span> <span class="nv">$o2</span><span class="p">);</span>
-<span class="cm">/* output */</span>
-<span class="nx">bool</span><span class="p">(</span><span class="k">true</span><span class="p">)</span></code></pre></figure>
-
-<p>可以看出，$o1, $o2的比较行为已经被<code>__compare</code>改变</p>
-
-
-      <p class=\"more\"><a href="/PHP__compare_maigc_method/">Read more...</a></p>
     
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->

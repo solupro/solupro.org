@@ -5,25 +5,25 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>PHP7中的packed array &#8211; Solu's 记事簿</title>
-<meta name="description" content="PHP7中数组的一些改进">
-<meta name="keywords" content="C, PHP, code">
+<title>Go语言中slice作为函数参数 &#8211; Solu's 记事簿</title>
+<meta name="description" content="Go语言中slice作为函数参数">
+<meta name="keywords" content="Go, slice, code">
 
 
 
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PHP7中的packed array">
-<meta property="og:description" content="PHP7中数组的一些改进">
-<meta property="og:url" content="https://solupro.org/PHP7-packet-array/">
+<meta property="og:title" content="Go语言中slice作为函数参数">
+<meta property="og:description" content="Go语言中slice作为函数参数">
+<meta property="og:url" content="https://solupro.org/Go-slice-parameter-for-function/">
 <meta property="og:site_name" content="Solu's 记事簿">
 
 <meta name="google-site-verification" content="solupro.org">
 
 
 
-<link rel="canonical" href="https://solupro.org/PHP7-packet-array/">
+<link rel="canonical" href="https://solupro.org/Go-slice-parameter-for-function/">
 <link href="https://solupro.org/feed.xml" type="application/atom+xml" rel="alternate" title="Solu's 记事簿 Feed">
 <link rel="author" href="https://plus.google.com/+solu_scarlet?rel=author">
 
@@ -130,77 +130,135 @@
     <header class="header-title">
       <div class="header-title-wrap">
         
-          <h1 class="entry-title"><a href="https://solupro.org/PHP7-packet-array/" rel="bookmark" title="PHP7中的packed array">PHP7中的packed array</a></h1>
+          <h1 class="entry-title"><a href="https://solupro.org/Go-slice-parameter-for-function/" rel="bookmark" title="Go语言中slice作为函数参数">Go语言中slice作为函数参数</a></h1>
         
-        <h2>December 09, 2018</h2>
+        <h2>April 04, 2019</h2>
       </div><!-- /.header-title-wrap -->
     </header>
     <div class="entry-content">
-      <p>上次提到PHP7的数组分为packed array 和 hash array，区别在于packed array取值不需要通过slot获得arData的下标，它的key对应的就是下标，所以取值速度上更有优势和比较省内存。</p>
+      <p><b>Go语言函数参数是值传递</b></p>
+<blockquote>
+  <p>from: https://golang.org/ref/spec#Calls <br />
+After they are evaluated, the parameters of the call are passed by value to the function and the called function begins execution.</p>
+</blockquote>
 
-<p>packed array要满足的条件是key必须是递增的正整型。</p>
+<p>一个简单的例子</p>
 
-<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
-<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">];</span> <span class="c1">// 是</span>
-<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">];</span> <span class="c1">// 是(跨下标的有例外)</span>
-<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">];</span> <span class="c1">// 不是</span>
-<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">];</span> <span class="c1">// 不是</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-go" data-lang="go"><span></span><span class="nx">a</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">// len=1, cap=2</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="c1">// print: [0]</span>
+<span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="c1">// print: [0]</span>
 
-<p><b>转换为packed array的操作</b> <br />
-shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为packed array。</p>
+<span class="kd">func</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span>  <span class="p">{</span>
+    <span class="nx">s</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+<span class="p">}</span></code></pre></figure>
 
-<p><b>转换为hash array的操作</b></p>
-<ol>
-  <li>往packed array添加string key的操作</li>
-  <li>添加的key是整型但是之前这个key被unset过（Z_TYPE == IS_UNDEF 状态）</li>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>添加的key 大于nTableSize（数组容量）并且 (key » 1) &gt; nTableSize</td>
-          <td> </td>
-          <td>(nTableSize » 1) &gt; nNumOfElements 这里😂太拗口我就直接贴代码好了</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-</ol>
+<p>函数<code>foo</code>对slice进行了append操作，但是并没改变它的值</p>
 
-<p>关于②PHP数组unset操作并不会立马删除指定的bucket，而且把它标识为<code>IS_UNDEF</code>的状态，等待rehash或者扩容的时候再处理（这是后话，有机会再填坑吧）。<br />
-比如有一个packed array</p>
+<p>再看一个例子</p>
 
-<figure class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
-<span class="nv">$arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">];</span>
-<span class="nb">unset</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
-<span class="nv">$arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span> 
-<span class="c1">// output</span>
-<span class="nv">$arr</span> <span class="o">==</span> <span class="p">[</span><span class="mi">0</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="mi">4</span><span class="p">]</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-go" data-lang="go"><span></span><span class="nx">a</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">// len=1, cap=2</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="c1">// print: [0]</span>
+<span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="c1">// print: [1]</span>
 
-<p>这时候就已经转化成了hash array</p>
+<span class="kd">func</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span>  <span class="p">{</span>
+    <span class="nx">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="mi">1</span>
+<span class="p">}</span></code></pre></figure>
 
-<p>关于③先要各个字段之间的关系是，数组容量(nTableSize，初始化数组容量是8) = 已使用(nNumUsed) + 未使用， 已使用(nNumUsed) = 有效(nNumOfElements，我们count数组得到的就是这个大小) + 无效(unset的) 。结合上面的描述得到 $arr = [0 =&gt; 1, 8 =&gt; 2]; 是一个hash array。</p>
+<p>函数<code>foo</code>修改了slice元素影响到了外部变量，说好的传值呢？！
+<img src="//ww1.sinaimg.cn/mw690/65fcc0d7ly1g1qrlqy1q7j2069069a9x.jpg" alt="" /></p>
 
-<p><img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fyl54zmlvhj20ze0cqq5p.jpg" alt="" /></p>
+<!-- more -->
 
-<p>打印出这时候的HashTable可以看到，u.flag = 26 &amp; HASH_FLAG_PACKED(4) == 0 已经不是packed array了，虽然我们第二个元素下标是8超过了容量nTableSize，但是这时候并没有扩容，而是转为hash array使得内存使用边得更紧凑。</p>
+<p>看看slice的底层实现</p>
 
-<p>参考：</p>
+<figure class="highlight"><pre><code class="language-go" data-lang="go"><span></span><span class="c1">// src/runtime/slice.go#L13</span>
+<span class="kd">type</span> <span class="nx">slice</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">array</span> <span class="nx">unsafe</span><span class="p">.</span><span class="nx">Pointer</span>
+	<span class="nx">len</span>   <span class="kt">int</span>
+	<span class="nx">cap</span>   <span class="kt">int</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>其实是一个struct，slice的指针指向第一个字段的底层数组元素的地址，使用<code>%p</code>打印的也是这个数组的地址，
+以下代码我们验证这个观点。</p>
+
+<figure class="highlight"><pre><code class="language-go" data-lang="go"><span></span><span class="nx">a</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nx">p</span> <span class="o">:=</span> <span class="p">(</span><span class="o">*</span><span class="kt">uintptr</span><span class="p">)(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nx">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">a</span><span class="p">))</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;a point: %p, a addr:%p \n %p, 0x%x\n&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">a</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">p</span><span class="p">,</span> <span class="o">*</span><span class="nx">p</span><span class="p">)</span>
+<span class="c1">// print a point: 0xc0000b82e0, a addr:0xc0000be280 </span>
+<span class="c1">//       0xc0000b82e0, 0xc0000be280</span></code></pre></figure>
+
+<p>array是存储数据的数组指针，len是长度，cap是内容。我们大胆猜测
+参数传递是值，参数s变量是a变量的拷贝，它们字段值是相同的。</p>
+
+<figure class="highlight"><pre><code class="language-go" data-lang="go"><span></span><span class="nx">a</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;out1: %v, array addr:%p, slice addr:%p %d, %d\n&quot;</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">a</span><span class="p">,</span> <span class="nb">cap</span><span class="p">(</span><span class="nx">a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">))</span>
+
+<span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;out2: %v, array addr:%p, slice addr:%p %d, %d\n&quot;</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">a</span><span class="p">,</span> <span class="nb">cap</span><span class="p">(</span><span class="nx">a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">))</span>
+
+<span class="kd">func</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span>  <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;in1: %v, array addr:%p, slice addr:%p %d, %d\n&quot;</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">s</span><span class="p">,</span> <span class="nb">cap</span><span class="p">(</span><span class="nx">s</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="nx">s</span><span class="p">))</span>
+    <span class="nx">s</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;in2: %v, array addr:%p, slice addr:%p %d, %d\n&quot;</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">s</span><span class="p">,</span> <span class="nb">cap</span><span class="p">(</span><span class="nx">s</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="nx">s</span><span class="p">))</span>
+<span class="p">}</span>
+<span class="cm">/*</span>
+<span class="cm">out1: [0], array addr:0xc000092290, slice addr:0xc00008a360 2, 1</span>
+<span class="cm">in1: [0], array addr:0xc000092290, slice addr:0xc00008a3c0 2, 1</span>
+<span class="cm">in2: [0 12], array addr:0xc000092290, slice addr:0xc00008a3c0 2, 2</span>
+<span class="cm">out2: [0], array addr:0xc000092290, slice addr:0xc00008a360 2, 1</span>
+<span class="cm">*/</span></code></pre></figure>
+
+<p><code>out1</code>和<code>in1</code>对比，除了slice的地址改变其他值都和外部的相对，验证了以上观点。</p>
+
+<p>上面例子foo函数对slice进行了append操作，因为初始化cap=2，len=1，所以cap够用没有申请新的array，因此操作的还是同一个array。<code>in2</code>的输出数字12已经append到了array，并且len变成了2，但因为参数s变量是外部a变量的拷贝，因此<code>out2</code>的len依然是1，输出的内容也没有12。再次大胆猜测因为len的缘故导致12没被输出呢，尝试修改a变量的len。</p>
+
+<figure class="highlight"><pre><code class="language-go" data-lang="go"><span></span><span class="nx">a</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">int</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;out1: %v, %d, %d\n&quot;</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nb">cap</span><span class="p">(</span><span class="nx">a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">))</span>
+
+<span class="nx">foo</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;out2: %v, %d, %d\n&quot;</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nb">cap</span><span class="p">(</span><span class="nx">a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">))</span>
+
+<span class="c1">// 取得slice地址 + 指针长度 = len地址</span>
+<span class="nx">lenAddr</span> <span class="o">:=</span> <span class="p">(</span><span class="o">*</span><span class="kt">int</span><span class="p">)(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nx">Pointer</span><span class="p">(</span><span class="nb">uintptr</span><span class="p">(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nx">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">a</span><span class="p">))</span> <span class="o">+</span> <span class="nx">unsafe</span><span class="p">.</span><span class="nx">Sizeof</span><span class="p">(</span><span class="nb">uintptr</span><span class="p">(</span><span class="mi">1</span><span class="p">))));</span>
+<span class="o">*</span><span class="nx">lenAddr</span> <span class="p">=</span> <span class="mi">2</span> <span class="c1">// 修改len的值</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;out3: %v, %d, %d\n&quot;</span><span class="p">,</span> <span class="nx">a</span><span class="p">,</span> <span class="nb">cap</span><span class="p">(</span><span class="nx">a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">))</span>
+
+<span class="kd">func</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span>  <span class="p">{</span>
+    <span class="nx">s</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="cm">/*</span>
+<span class="cm">out1: [0], 2, 1</span>
+<span class="cm">out2: [0], 2, 1</span>
+<span class="cm">out3: [0 12], 2, 2</span>
+<span class="cm">*/</span></code></pre></figure>
+
+<p>顺利的把12也打印出来了。</p>
+
+<p><b>总结</b> <br />
+slice当作参数传递的时候，形参是实参slice的拷贝，array地址，len，cap均相等；  <br />
+函数内对slice进行修改，没有因为容量不足而触发array重新分配，会影响到实参。  <br />
+以上是我对Go语言slice的一些看法，可能有误望指出。</p>
+
+<p><b>参考</b></p>
 <ul>
-  <li>《PHP 7底层设计与源码实现》</li>
-  <li>PHP7.2-SRC</li>
-  <li>nikic 博客</li>
+  <li>《Go程序设计语言》</li>
+  <li><a href="https://golang.org/pkg/unsafe/">Package unsafe</a></li>
 </ul>
 
       <footer class="entry-meta">
-        <span class="entry-tags"><a href="https://solupro.org/tags/#C" title="Pages tagged C" class="tag">C</a><a href="https://solupro.org/tags/#PHP" title="Pages tagged PHP" class="tag">PHP</a><a href="https://solupro.org/tags/#code" title="Pages tagged code" class="tag">code</a></span>
-        <span><a href="https://solupro.org/PHP7-packet-array/" rel="bookmark" title="PHP7中的packed array">PHP7中的packed array</a> was published on <span class="entry-date date published updated"><time datetime="2018-12-09T00:00:00+08:00">December 09, 2018</time></span></span>
+        <span class="entry-tags"><a href="https://solupro.org/tags/#Go" title="Pages tagged Go" class="tag">Go</a><a href="https://solupro.org/tags/#slice" title="Pages tagged slice" class="tag">slice</a><a href="https://solupro.org/tags/#code" title="Pages tagged code" class="tag">code</a></span>
+        <span><a href="https://solupro.org/Go-slice-parameter-for-function/" rel="bookmark" title="Go语言中slice作为函数参数">Go语言中slice作为函数参数</a> was published on <span class="entry-date date published updated"><time datetime="2019-04-04T00:00:00+08:00">April 04, 2019</time></span></span>
         
         <span class="author vcard"><span class="fn"><a href="https://solupro.org/about/" title="About Solu Scarlet">Solu Scarlet</a></span></span>
         <div class="social-share">
           <ul class="socialcount socialcount-small inline-list">
-            <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=https://solupro.org/PHP7-packet-array/" title="Share on Facebook"><span class="count"><i class="icon-facebook-sign"></i> Like</span></a></li>
-            <li class="twitter"><a href="https://twitter.com/intent/tweet?text=https://solupro.org/PHP7-packet-array/" title="Share on Twitter"><span class="count"><i class="icon-twitter-sign"></i> Tweet</span></a></li>
-            <li class="googleplus"><a href="https://plus.google.com/share?url=https://solupro.org/PHP7-packet-array/" title="Share on Google Plus"><span class="count"><i class="icon-google-plus-sign"></i> +1</span></a></li>
+            <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=https://solupro.org/Go-slice-parameter-for-function/" title="Share on Facebook"><span class="count"><i class="icon-facebook-sign"></i> Like</span></a></li>
+            <li class="twitter"><a href="https://twitter.com/intent/tweet?text=https://solupro.org/Go-slice-parameter-for-function/" title="Share on Twitter"><span class="count"><i class="icon-twitter-sign"></i> Tweet</span></a></li>
+            <li class="googleplus"><a href="https://plus.google.com/share?url=https://solupro.org/Go-slice-parameter-for-function/" title="Share on Google Plus"><span class="count"><i class="icon-google-plus-sign"></i> +1</span></a></li>
           </ul>
         </div><!-- /.social-share -->
       </footer>
@@ -210,23 +268,23 @@ shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为pac
     <div class="read-more">
       
         <div class="read-more-header">
-          <a href="https://solupro.org/PHP7-something-about-array/" class="read-more-btn">Read More</a>
+          <a href="https://solupro.org/PHP7-compare-array-with-number/" class="read-more-btn">Read More</a>
         </div><!-- /.read-more-header -->
         <div class="read-more-content">
-          <h3><a href="https://solupro.org/Go-slice-parameter-for-function/" title="Go语言中slice作为函数参数">Go语言中slice作为函数参数</a></h3>
-          <p>Go语言中slice作为函数参数 <a href="https://solupro.org/Go-slice-parameter-for-function/">Continue reading</a></p>
+          <h3><a href="https://solupro.org/PHP7-compare-array-with-number/" title="PHP7中数组和整型的比较">PHP7中数组和整型的比较</a></h3>
+          <p>PHP7中数组和整型的比较 <a href="https://solupro.org/PHP7-compare-array-with-number/">Continue reading</a></p>
         </div><!-- /.read-more-content -->
       
       <div class="read-more-list">
         
           <div class="list-item">
-            <h4><a href="https://solupro.org/PHP7-compare-array-with-number/" title="PHP7中数组和整型的比较">PHP7中数组和整型的比较</a></h4>
-            <span>Published on January 10, 2019</span>
+            <h4><a href="https://solupro.org/PHP7-array-resize-and-rehash/" title="PHP7数组扩容和rehash">PHP7数组扩容和rehash</a></h4>
+            <span>Published on December 24, 2018</span>
           </div><!-- /.list-item -->
         
           <div class="list-item">
-            <h4><a href="https://solupro.org/PHP7-array-resize-and-rehash/" title="PHP7数组扩容和rehash">PHP7数组扩容和rehash</a></h4>
-            <span>Published on December 24, 2018</span>
+            <h4><a href="https://solupro.org/PHP7-packet-array/" title="PHP7中的packed array">PHP7中的packed array</a></h4>
+            <span>Published on December 09, 2018</span>
           </div><!-- /.list-item -->
         
       </div><!-- /.read-more-list -->
