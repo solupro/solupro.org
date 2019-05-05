@@ -42,7 +42,7 @@ $arr == [0 => 1, 2 => 3, 1 => 4]
 
 关于③先要各个字段之间的关系是，数组容量(nTableSize，初始化数组容量是8) = 已使用(nNumUsed) + 未使用， 已使用(nNumUsed) = 有效(nNumOfElements，我们count数组得到的就是这个大小) + 无效(unset的) 。结合上面的描述得到 $arr = [0 => 1, 8 => 2]; 是一个hash array。
 
-![](//ww1.sinaimg.cn/large/65fcc0d7gy1fyl54zmlvhj20ze0cqq5p.jpg)
+![](//i.loli.net/2019/05/05/5cce45be335b7.jpg)
 
 打印出这时候的HashTable可以看到，u.flag = 26 & HASH_FLAG_PACKED(4) == 0 已经不是packed array了，虽然我们第二个元素下标是8超过了容量nTableSize，但是这时候并没有扩容，而是转为hash array使得内存使用边得更紧凑。
 

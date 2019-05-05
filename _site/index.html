@@ -180,7 +180,7 @@ After they are evaluated, the parameters of the call are passed by value to the 
 <span class="p">}</span></code></pre></figure>
 
 <p>函数<code>foo</code>修改了slice元素影响到了外部变量，说好的传值呢？！
-<img src="//ww1.sinaimg.cn/mw690/65fcc0d7ly1g1qrlqy1q7j2069069a9x.jpg" alt="" /></p>
+<img src="//i.loli.net/2019/05/05/5cce44d392365.jpg" alt="" /></p>
 
 
       <p class=\"more\"><a href="/Go-slice-parameter-for-function/">Read more...</a></p>
@@ -199,17 +199,17 @@ After they are evaluated, the parameters of the call are passed by value to the 
     
       <p><b>起因</b> <br />
 在<code>V2EX</code>看到这帖子，平时是没试过这么玩，出于好奇翻了一下源码 <br />
-<img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fz8add2zzoj20kc06c74q.jpg" alt="" /></p>
+<img src="//i.loli.net/2019/05/05/5cce453303d22.jpg" alt="" /></p>
 
 <p><b>分析</b> <br />
 以 <code>[] &gt; 123;</code> 为例 <br />
-<img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fz8aehqewxj211e0cumzd.jpg" alt="" /> <br />
+<img src="//i.loli.net/2019/05/05/5cce453358c7a.jpg" alt="" /> <br />
 ①略过词法分析语法分析AST生成，可以看到 op1 &gt; op2 的操作等同于 op2 &lt; op1，调用函数 is_smaller_function(result, op2, op1)</p>
 
-<p><img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fz8af2q7ebj211q0ccwgj.jpg" alt="" /> <br />
+<p><img src="//i.loli.net/2019/05/05/5cce453368eba.jpg" alt="" /> <br />
 ②接着调用 compare_function， 这里的 op1 == 123，op2 == []</p>
 
-<p><img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fz8afwqc6ij211808egn2.jpg" alt="" /> <br />
+<p><img src="//i.loli.net/2019/05/05/5cce45336703e.jpg" alt="" /> <br />
 ③ compare_function 其实就是各种类型的比较判断，引用类型转换继而比较blablabla，省略这些代码，因为当我们 op2 == IS_ARRAY 的时候都不成立，最终到达上图的判断，可以看到op1的值已经被忽略，所以无论是 123 还是 PHP_MAX_INT，result = -1 接着返回成功。回到图2，比较结果变成了 result = -1 &lt; 0; 恒为 true。</p>
 
 <p><b>结论</b> <br />
@@ -236,7 +236,7 @@ After they are evaluated, the parameters of the call are passed by value to the 
       <p><b>TL;DR</b><br />
 <b>数组初始化容量为8，最大是0x80000000，每次扩容为原容量的2倍。</b></p>
 
-<p><img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg" alt="" /></p>
+<p><img src="//i.loli.net/2019/05/05/5cce45a1e0228.jpg" alt="" /></p>
 
 <p><b>扩容</b><br />
 数组插入新元素的时候会调用<code>ZEND_HASH_IF_FULL_DO_RESIZE</code>判断已使用容量是否大于等于数组容量（ht-&gt;nNumUsed &gt;= ht-&gt;nTableSize）;<br />
@@ -312,7 +312,7 @@ shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为pac
 
 <p>关于③先要各个字段之间的关系是，数组容量(nTableSize，初始化数组容量是8) = 已使用(nNumUsed) + 未使用， 已使用(nNumUsed) = 有效(nNumOfElements，我们count数组得到的就是这个大小) + 无效(unset的) 。结合上面的描述得到 $arr = [0 =&gt; 1, 8 =&gt; 2]; 是一个hash array。</p>
 
-<p><img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fyl54zmlvhj20ze0cqq5p.jpg" alt="" /></p>
+<p><img src="//i.loli.net/2019/05/05/5cce45be335b7.jpg" alt="" /></p>
 
 <p>打印出这时候的HashTable可以看到，u.flag = 26 &amp; HASH_FLAG_PACKED(4) == 0 已经不是packed array了，虽然我们第二个元素下标是8超过了容量nTableSize，但是这时候并没有扩容，而是转为hash array使得内存使用边得更紧凑。</p>
 
@@ -342,7 +342,7 @@ shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为pac
 
 <p>下图是初始化的空packed array结构（packed array 和 hash array以后有机会在写吧）</p>
 
-<p><img src="//ww1.sinaimg.cn/large/65fcc0d7gy1fyjydj7k58j20go0axmy1.jpg" alt="packed array" />
+<p><img src="//i.loli.net/2019/05/05/5cce45d8a4d49.jpg" alt="packed array" />
 	￼￼</p>
 
 <p>这里有三个概念HashTable, solt, bucket。HashTable数组本体，slot存储索引，bucket实际数据的存储结构。图中的 *arData 指向的是一段连续的内存，起点位置是bucket的开始地址，往前（负索引）是slot的地址，这块内存同时存放了solt和bucket结构。</p>

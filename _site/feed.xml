@@ -4,7 +4,7 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="https://solupro.org/feed.xml" />
 <link rel="alternate" type="text/html" href="https://solupro.org" />
-<updated>2019-04-05T00:15:20+08:00</updated>
+<updated>2019-05-05T10:10:49+08:00</updated>
 <id>https://solupro.org/</id>
 <author>
   <name>Solu Scarlet</name>
@@ -55,7 +55,7 @@ After they are evaluated, the parameters of the call are passed by value to the 
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;函数&lt;code&gt;foo&lt;/code&gt;修改了slice元素影响到了外部变量，说好的传值呢？！
-&lt;img src=&quot;//ww1.sinaimg.cn/mw690/65fcc0d7ly1g1qrlqy1q7j2069069a9x.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;img src=&quot;//i.loli.net/2019/05/05/5cce44d392365.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;!-- more --&gt;
 
@@ -154,17 +154,17 @@ slice当作参数传递的时候，形参是实参slice的拷贝，array地址�
   </author>
   <content type="html">&lt;p&gt;&lt;b&gt;起因&lt;/b&gt; &lt;br /&gt;
 在&lt;code&gt;V2EX&lt;/code&gt;看到这帖子，平时是没试过这么玩，出于好奇翻了一下源码 &lt;br /&gt;
-&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz8add2zzoj20kc06c74q.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;img src=&quot;//i.loli.net/2019/05/05/5cce453303d22.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;b&gt;分析&lt;/b&gt; &lt;br /&gt;
 以 &lt;code&gt;[] &amp;gt; 123;&lt;/code&gt; 为例 &lt;br /&gt;
-&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz8aehqewxj211e0cumzd.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
+&lt;img src=&quot;//i.loli.net/2019/05/05/5cce453358c7a.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
 ①略过词法分析语法分析AST生成，可以看到 op1 &amp;gt; op2 的操作等同于 op2 &amp;lt; op1，调用函数 is_smaller_function(result, op2, op1)&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz8af2q7ebj211q0ccwgj.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
+&lt;p&gt;&lt;img src=&quot;//i.loli.net/2019/05/05/5cce453368eba.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
 ②接着调用 compare_function， 这里的 op1 == 123，op2 == []&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz8afwqc6ij211808egn2.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
+&lt;p&gt;&lt;img src=&quot;//i.loli.net/2019/05/05/5cce45336703e.jpg&quot; alt=&quot;&quot; /&gt; &lt;br /&gt;
 ③ compare_function 其实就是各种类型的比较判断，引用类型转换继而比较blablabla，省略这些代码，因为当我们 op2 == IS_ARRAY 的时候都不成立，最终到达上图的判断，可以看到op1的值已经被忽略，所以无论是 123 还是 PHP_MAX_INT，result = -1 接着返回成功。回到图2，比较结果变成了 result = -1 &amp;lt; 0; 恒为 true。&lt;/p&gt;
 
 &lt;p&gt;&lt;b&gt;结论&lt;/b&gt; &lt;br /&gt;
@@ -193,7 +193,7 @@ slice当作参数传递的时候，形参是实参slice的拷贝，array地址�
   <content type="html">&lt;p&gt;&lt;b&gt;TL;DR&lt;/b&gt;&lt;br /&gt;
 &lt;b&gt;数组初始化容量为8，最大是0x80000000，每次扩容为原容量的2倍。&lt;/b&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fz1nxgy4ajj20ww0lwn25.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;//i.loli.net/2019/05/05/5cce45a1e0228.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;b&gt;扩容&lt;/b&gt;&lt;br /&gt;
 数组插入新元素的时候会调用&lt;code&gt;ZEND_HASH_IF_FULL_DO_RESIZE&lt;/code&gt;判断已使用容量是否大于等于数组容量（ht-&amp;gt;nNumUsed &amp;gt;= ht-&amp;gt;nTableSize）;&lt;br /&gt;
@@ -271,7 +271,7 @@ shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为pac
 
 &lt;p&gt;关于③先要各个字段之间的关系是，数组容量(nTableSize，初始化数组容量是8) = 已使用(nNumUsed) + 未使用， 已使用(nNumUsed) = 有效(nNumOfElements，我们count数组得到的就是这个大小) + 无效(unset的) 。结合上面的描述得到 $arr = [0 =&amp;gt; 1, 8 =&amp;gt; 2]; 是一个hash array。&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fyl54zmlvhj20ze0cqq5p.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;//i.loli.net/2019/05/05/5cce45be335b7.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;打印出这时候的HashTable可以看到，u.flag = 26 &amp;amp; HASH_FLAG_PACKED(4) == 0 已经不是packed array了，虽然我们第二个元素下标是8超过了容量nTableSize，但是这时候并没有扩容，而是转为hash array使得内存使用边得更紧凑。&lt;/p&gt;
 
@@ -303,7 +303,7 @@ shuffle，array_keys等函数最终都会调用 zend_hash_to_packed 转换为pac
 
 &lt;p&gt;下图是初始化的空packed array结构（packed array 和 hash array以后有机会在写吧）&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;//ww1.sinaimg.cn/large/65fcc0d7gy1fyjydj7k58j20go0axmy1.jpg&quot; alt=&quot;packed array&quot; /&gt;
+&lt;p&gt;&lt;img src=&quot;//i.loli.net/2019/05/05/5cce45d8a4d49.jpg&quot; alt=&quot;packed array&quot; /&gt;
 	￼￼&lt;/p&gt;
 
 &lt;p&gt;这里有三个概念HashTable, solt, bucket。HashTable数组本体，slot存储索引，bucket实际数据的存储结构。图中的 *arData 指向的是一段连续的内存，起点位置是bucket的开始地址，往前（负索引）是slot的地址，这块内存同时存放了solt和bucket结构。&lt;/p&gt;

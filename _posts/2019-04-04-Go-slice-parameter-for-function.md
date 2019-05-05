@@ -37,7 +37,7 @@ func foo(s []int)  {
 }
 {% endhighlight %}
 函数`foo`修改了slice元素影响到了外部变量，说好的传值呢？！
-![](//ww1.sinaimg.cn/mw690/65fcc0d7ly1g1qrlqy1q7j2069069a9x.jpg)
+![](//i.loli.net/2019/05/05/5cce44d392365.jpg)
 
 <!-- more -->
 
